@@ -27,22 +27,69 @@ function generateTimeSlots(startHour: number, endHour: number): string[] {
   return slots;
 }
 
+// 시간 문자열을 분 단위로 변환 (비교용)
+function timeToMinutes(time: string): number {
+  const [hour, min] = time.split(':').map(Number);
+  return hour * 60 + min;
+}
+
+// 시간 범위 파싱 (예: "10:00 ~ 12:00" 또는 "10:00~12:00" 또는 "10:00")
+function parseTimeRange(input: string): { start: string; end: string } | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  // 범위 형식인지 확인 (~ 또는 - 로 구분)
+  const rangeMatch = trimmed.match(/^(\d{1,2}:\d{2})\s*[~\-]\s*(\d{1,2}:\d{2})$/);
+  if (rangeMatch) {
+    const start = rangeMatch[1].padStart(5, '0'); // "9:00" -> "09:00"
+    const end = rangeMatch[2].padStart(5, '0');
+    return { start, end };
+  }
+
+  // 단일 시간 형식인지 확인
+  const singleMatch = trimmed.match(/^(\d{1,2}:\d{2})$/);
+  if (singleMatch) {
+    const time = singleMatch[1].padStart(5, '0');
+    return { start: time, end: time };
+  }
+
+  return null;
+}
+
+// 시간 범위 내의 시간대만 필터링
+function filterTimeSlotsByRange(slots: string[], range: { start: string; end: string }): string[] {
+  const startMinutes = timeToMinutes(range.start);
+  const endMinutes = timeToMinutes(range.end);
+
+  return slots.filter(slot => {
+    const slotMinutes = timeToMinutes(slot);
+    return slotMinutes >= startMinutes && slotMinutes <= endMinutes;
+  });
+}
+
 async function main() {
   console.log('인천공항 주차 예약 조회 시작...\n');
 
+  // 터미널 선택
+  const terminalInput = await askQuestion('터미널을 선택하세요 (1: 제1터미널, 2: 제2터미널): ');
+  const terminal = terminalInput.trim() === '2' ? 2 : 1;
+  const terminalName = `제${terminal}터미널 예약주차장`;
+  console.log(`\n선택된 터미널: ${terminalName}`);
+
   // 사용자로부터 날짜 입력받기
-  const startDateInput = await askQuestion('예약 입차일자를 입력하세요 (YYYY-MM-DD): ');
+  const startDateInput = await askQuestion('\n예약 입차일자를 입력하세요 (YYYY-MM-DD): ');
   const endDateInput = await askQuestion('예약 출차일자를 입력하세요 (YYYY-MM-DD): ');
 
   console.log(`\n입차일: ${startDateInput}`);
   console.log(`출차일: ${endDateInput}`);
 
   // 시간 입력받기
-  console.log('\n특정 시간대를 지정하면 검색 시간을 크게 단축할 수 있습니다.');
+  console.log('\n시간 범위를 지정하면 검색 시간을 크게 단축할 수 있습니다.');
+  console.log('입력 형식: 단일 시간(09:00) 또는 범위(09:00~12:00, 09:00 ~ 12:00)');
   console.log('(전체 시간대를 확인하려면 Enter를 누르세요)\n');
 
-  const startTimeInput = await askQuestion('입차 시간 (HH:mm, 예: 09:00): ');
-  const endTimeInput = await askQuestion('출차 시간 (HH:mm, 예: 18:00): ');
+  const startTimeInput = await askQuestion('입차 시간 범위 (예: 10:00~12:00): ');
+  const endTimeInput = await askQuestion('출차 시간 범위 (예: 18:00~20:00): ');
 
   console.log('\n시간대별 예약 가능 여부를 확인합니다...\n');
 
@@ -68,28 +115,40 @@ async function main() {
     // 페이지 로딩 대기
     await page.waitForTimeout(2000);
 
-    console.log('제1터미널 예약주차장 링크 클릭 시도...');
+    console.log(`${terminalName} 링크 클릭 시도...`);
 
     // 링크를 찾아서 클릭
-    const link = page.locator('a', { hasText: '제1터미널 예약주차장' });
+    const link = page.locator('a', { hasText: terminalName });
     const linkExists = await link.count() > 0;
 
     if (linkExists) {
       await link.click();
       await page.waitForTimeout(2000);
 
-      // 시간대 생성 (07:00 ~ 23:00, 30분 단위)
-      let startTimeSlots = generateTimeSlots(7, 23);
-      let endTimeSlots = generateTimeSlots(7, 23);
+      // 시간대 생성 (00:00 ~ 23:30, 30분 단위) - 전체 시간대 지원
+      const allTimeSlots = generateTimeSlots(0, 23);
+      let startTimeSlots = [...allTimeSlots];
+      let endTimeSlots = [...allTimeSlots];
 
-      // 특정 시간 필터링
-      if (startTimeInput.trim()) {
-        startTimeSlots = [startTimeInput.trim()];
-        console.log(`입차 시간 ${startTimeInput}만 확인`);
+      // 시간 범위 필터링
+      const startTimeRange = parseTimeRange(startTimeInput);
+      const endTimeRange = parseTimeRange(endTimeInput);
+
+      if (startTimeRange) {
+        startTimeSlots = filterTimeSlotsByRange(allTimeSlots, startTimeRange);
+        if (startTimeRange.start === startTimeRange.end) {
+          console.log(`입차 시간: ${startTimeRange.start}`);
+        } else {
+          console.log(`입차 시간 범위: ${startTimeRange.start} ~ ${startTimeRange.end}`);
+        }
       }
-      if (endTimeInput.trim()) {
-        endTimeSlots = [endTimeInput.trim()];
-        console.log(`출차 시간 ${endTimeInput}만 확인`);
+      if (endTimeRange) {
+        endTimeSlots = filterTimeSlotsByRange(allTimeSlots, endTimeRange);
+        if (endTimeRange.start === endTimeRange.end) {
+          console.log(`출차 시간: ${endTimeRange.start}`);
+        } else {
+          console.log(`출차 시간 범위: ${endTimeRange.start} ~ ${endTimeRange.end}`);
+        }
       }
 
       console.log(`\n확인할 입차 시간대: ${startTimeSlots.length}개`);
