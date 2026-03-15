@@ -316,6 +316,8 @@ async function main() {
             console.log(`✅ [${availableCount}] 입차: ${startDateTime}  출차: ${endDateTime}  요금: ${parkingFee || '-'}원  상태: ${resvePosblSttus.trim()}`);
           }
 
+          if (jsonMode && totalChecked >= BATCH_SIZE) break outer;
+
           if (!jsonMode && totalChecked % BATCH_SIZE === 0) {
             const done = await askAfterBatch(`${totalChecked}개 완료`);
             if (done) break outer;

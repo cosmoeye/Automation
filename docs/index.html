@@ -805,6 +805,20 @@ function calSetDate(field, date) {
   document.getElementById(field + '-date').value = calFmt(date);
 }
 
+// ── 캐시 ──────────────────────────────────────────────────
+const CACHE_FORM    = 'parking_form';
+const CACHE_RESULTS = 'parking_results';
+
+function saveFormCache() {
+  localStorage.setItem(CACHE_FORM, JSON.stringify({
+    terminal:     document.getElementById('terminal').value,
+    checkinDate:  document.getElementById('checkin-date').value,
+    checkoutDate: document.getElementById('checkout-date').value,
+    checkinTime:  document.getElementById('checkin-time').value,
+    checkoutTime: document.getElementById('checkout-time').value,
+  }));
+}
+
 // ── 초기화 ────────────────────────────────────────────────
 (function init() {
   loadToken();
@@ -821,6 +835,24 @@ function calSetDate(field, date) {
 
   calSetDate('checkin',  tomorrow);
   calSetDate('checkout', tomorrow);
+
+  // 폼 상태 복원
+  try {
+    const saved = JSON.parse(localStorage.getItem(CACHE_FORM) || 'null');
+    if (saved) {
+      if (saved.terminal) document.getElementById('terminal').value = saved.terminal;
+      if (saved.checkinDate)  calSetDate('checkin',  calFromStr(saved.checkinDate));
+      if (saved.checkoutDate) calSetDate('checkout', calFromStr(saved.checkoutDate));
+      if (saved.checkinTime)  document.getElementById('checkin-time').value  = saved.checkinTime;
+      if (saved.checkoutTime) document.getElementById('checkout-time').value = saved.checkoutTime;
+    }
+  } catch {}
+
+  // 이전 결과 복원
+  try {
+    const data = JSON.parse(localStorage.getItem(CACHE_RESULTS) || 'null');
+    if (data) renderResults(data);
+  } catch {}
 
   // 팝업 외부 클릭 시 닫기 (re-render로 DOM에서 사라진 요소는 무시)
   document.addEventListener('click', e => {
@@ -845,6 +877,7 @@ async function triggerSearch() {
 
   if (!checkinDate || !checkoutDate) return alert('입차/출차 날짜를 입력하세요.');
 
+  saveFormCache();
   document.getElementById('search-btn').disabled = true;
   showStatus('queued');
 
@@ -1056,7 +1089,11 @@ async function loadResults(token) {
 }
 
 // ── 결과 렌더링 ───────────────────────────────────────────
+let currentTerminal = '1';
+
 function renderResults(data) {
+  currentTerminal = data.inputs.terminal || '1';
+  try { localStorage.setItem(CACHE_RESULTS, JSON.stringify(data)); } catch {}
   const section = document.getElementById('results-section');
   section.style.display = 'block';
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1089,7 +1126,7 @@ function renderResults(data) {
 
   const rows = available_slots.map((s, i) => {
     const fee = s.parkingFee
-      ? Number(s.parkingFee).toLocaleString('ko-KR') + '원'
+      ? Number(s.parkingFee.replace(/,/g, '')).toLocaleString('ko-KR') + '원'
       : '-';
     return `
       <tr>
@@ -1123,13 +1160,34 @@ function renderResults(data) {
 }
 
 function openBooking(checkin, checkout) {
-  window.open('https://parking.airport.kr/reserve', '_blank');
-  // 참고 정보 표시
+  // POST 폼으로 예약 페이지에 날짜/터미널 직접 전달
+  const isT2 = currentTerminal === '2';
+  const siteId      = isT2 ? 'T2' : 'T1';
+  const plotId      = isT2 ? '13' : '10';
+  const plotCmpsnId = isT2 ? 'F1' : '05';
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://parking.airport.kr/reserve/6110_01';
+  form.target = '_blank';
+
+  [['siteId', siteId], ['plotId', plotId], ['plotCmpsnId', plotCmpsnId], ['pinRsvDtm', checkin], ['poutRsvDtm', checkout]].forEach(([name, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
   const info = document.querySelector('.booking-info');
   info.innerHTML = `
     <strong>선택된 슬롯:</strong>
     입차 <code>${checkin}</code> / 출차 <code>${checkout}</code><br>
-    위 시간을 인천공항 주차 예약 사이트에서 입력하여 예약을 완료하세요.
+    예약 페이지가 새 탭으로 열렸습니다. 내용을 확인 후 예약을 완료하세요.
   `;
 }
 
