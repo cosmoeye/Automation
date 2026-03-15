@@ -1,4 +1,107 @@
 {
-  "timestamp": null,
-  "message": "아직 조회 결과가 없습니다. 위 폼에서 조회를 시작하세요."
+  "timestamp": "2026-03-15T12:32:45.968Z",
+  "inputs": {
+    "terminal": "1",
+    "terminalName": "제1터미널 예약주차장",
+    "checkin_date": "2026-04-04",
+    "checkout_date": "2026-04-06",
+    "checkin_time": "09:00~10:00",
+    "checkout_time": "18:00~20:00"
+  },
+  "stats": {
+    "total_checked": 15,
+    "available_count": 15
+  },
+  "available_slots": [
+    {
+      "startDateTime": "2026-04-04 09:00",
+      "endDateTime": "2026-04-06 18:00",
+      "parkingFee": "",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:00",
+      "endDateTime": "2026-04-06 18:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:00",
+      "endDateTime": "2026-04-06 19:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:00",
+      "endDateTime": "2026-04-06 19:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:00",
+      "endDateTime": "2026-04-06 20:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:30",
+      "endDateTime": "2026-04-06 18:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:30",
+      "endDateTime": "2026-04-06 18:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:30",
+      "endDateTime": "2026-04-06 19:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:30",
+      "endDateTime": "2026-04-06 19:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 09:30",
+      "endDateTime": "2026-04-06 20:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 10:00",
+      "endDateTime": "2026-04-06 18:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 10:00",
+      "endDateTime": "2026-04-06 18:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 10:00",
+      "endDateTime": "2026-04-06 19:00",
+      "parkingFee": "26,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 10:00",
+      "endDateTime": "2026-04-06 19:30",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    },
+    {
+      "startDateTime": "2026-04-04 10:00",
+      "endDateTime": "2026-04-06 20:00",
+      "parkingFee": "27,000",
+      "status": " 예약 가능"
+    }
+  ]
 }
