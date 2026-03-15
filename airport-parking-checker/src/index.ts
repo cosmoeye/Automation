@@ -1,17 +1,27 @@
 import { chromium } from 'playwright';
-import * as readline from 'readline';
+import * as fs from 'fs';
 
-// 사용자 입력을 받는 함수
+// Playwright subprocess가 stdin을 상속해 readline이 닫히는 문제를 피하기 위해
+// /dev/tty를 fs.readSync로 동기 블로킹 읽기 (이벤트 루프 차단이 의도적)
 function askQuestion(query: string): Promise<string> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
+  process.stdout.write(query);
+  return new Promise((resolve) => {
+    try {
+      const fd = fs.openSync('/dev/tty', 'r');
+      const chunks: number[] = [];
+      const buf = Buffer.alloc(1);
+      while (true) {
+        const n = fs.readSync(fd, buf, 0, 1, null);
+        if (n === 0 || buf[0] === 0x0a) break; // 0x0a = '\n'
+        if (buf[0] !== 0x0d) chunks.push(buf[0]); // 0x0d = '\r' 무시
+      }
+      fs.closeSync(fd);
+      resolve(Buffer.from(chunks).toString().trim());
+    } catch {
+      process.stdout.write('\n');
+      resolve('');
+    }
   });
-
-  return new Promise(resolve => rl.question(query, ans => {
-    rl.close();
-    resolve(ans);
-  }));
 }
 
 // 시간대 배열 생성 (30분 단위)
@@ -67,29 +77,85 @@ function filterTimeSlotsByRange(slots: string[], range: { start: string; end: st
   });
 }
 
+interface AvailableSlot {
+  startDateTime: string;
+  endDateTime: string;
+  parkingFee: string;
+  status: string;
+}
+
+async function openBookingBrowser(slot: AvailableSlot, terminalName: string) {
+  console.log(`\n브라우저 창을 여는 중... (입차: ${slot.startDateTime}, 출차: ${slot.endDateTime})`);
+
+  const bookingBrowser = await chromium.launch({ headless: false });
+  const bookingContext = await bookingBrowser.newContext({ viewport: { width: 1280, height: 800 } });
+  const bookingPage = await bookingContext.newPage();
+
+  await bookingPage.goto('https://parking.airport.kr/reserve', { waitUntil: 'networkidle', timeout: 30000 });
+  await bookingPage.waitForTimeout(2000);
+
+  const link = bookingPage.locator('a', { hasText: terminalName });
+  if (await link.count() > 0) {
+    await link.click();
+    await bookingPage.waitForTimeout(2000);
+
+    await bookingPage.evaluate((dt) => {
+      const input = document.querySelector('input[name="pinRsvDtm"]') as HTMLInputElement;
+      if (input) { input.value = dt; input.dispatchEvent(new Event('change', { bubbles: true })); }
+    }, slot.startDateTime);
+
+    await bookingPage.waitForTimeout(300);
+
+    await bookingPage.evaluate((dt) => {
+      const input = document.querySelector('input[name="poutRsvDtm"]') as HTMLInputElement;
+      if (input) { input.value = dt; input.dispatchEvent(new Event('change', { bubbles: true })); }
+    }, slot.endDateTime);
+
+    await bookingPage.waitForTimeout(1000);
+  }
+
+  console.log('✅ 브라우저가 열렸습니다. 예약을 진행해주세요.');
+  console.log('(창을 닫으면 프로그램이 종료됩니다.)');
+  await new Promise<void>(resolve => bookingBrowser.on('disconnected', () => resolve()));
+}
+
 async function main() {
   console.log('인천공항 주차 예약 조회 시작...\n');
 
+  // CLI 인수 파싱 (pnpm dev -- <terminal> <start-date> <end-date> <start-time> <end-time> [--json])
+  const rawArgs = process.argv.slice(2).filter(a => a !== '--');
+  const jsonMode = rawArgs.includes('--json');
+  const args = rawArgs.filter(a => a !== '--json');
+
+  let terminalInput: string;
+  let startDateInput: string;
+  let endDateInput: string;
+  let startTimeInput: string;
+  let endTimeInput: string;
+
+  if (args.length >= 3) {
+    // CLI 인수로 전달된 경우
+    terminalInput = args[0];
+    startDateInput = args[1];
+    endDateInput = args[2];
+    startTimeInput = args[3] ?? '';
+    endTimeInput = args[4] ?? '';
+  } else {
+    // 대화형 입력
+    terminalInput = await askQuestion('터미널을 선택하세요 (1: 제1터미널, 2: 제2터미널): ');
+    startDateInput = await askQuestion('\n예약 입차일자를 입력하세요 (YYYY-MM-DD): ');
+    endDateInput = await askQuestion('예약 출차일자를 입력하세요 (YYYY-MM-DD): ');
+    console.log('\n시간 범위를 지정하면 검색 시간을 크게 단축할 수 있습니다.');
+    console.log('입력 형식: 단일 시간(09:00) 또는 범위(09:00~12:00, 09:00 ~ 12:00)');
+    console.log('(전체 시간대를 확인하려면 Enter를 누르세요)\n');
+    startTimeInput = await askQuestion('입차 시간 범위 (예: 10:00~12:00): ');
+    endTimeInput = await askQuestion('출차 시간 범위 (예: 18:00~20:00): ');
+  }
+
   // 터미널 선택
-  const terminalInput = await askQuestion('터미널을 선택하세요 (1: 제1터미널, 2: 제2터미널): ');
   const terminal = terminalInput.trim() === '2' ? 2 : 1;
   const terminalName = `제${terminal}터미널 예약주차장`;
-  console.log(`\n선택된 터미널: ${terminalName}`);
-
-  // 사용자로부터 날짜 입력받기
-  const startDateInput = await askQuestion('\n예약 입차일자를 입력하세요 (YYYY-MM-DD): ');
-  const endDateInput = await askQuestion('예약 출차일자를 입력하세요 (YYYY-MM-DD): ');
-
-  console.log(`\n입차일: ${startDateInput}`);
-  console.log(`출차일: ${endDateInput}`);
-
-  // 시간 입력받기
-  console.log('\n시간 범위를 지정하면 검색 시간을 크게 단축할 수 있습니다.');
-  console.log('입력 형식: 단일 시간(09:00) 또는 범위(09:00~12:00, 09:00 ~ 12:00)');
-  console.log('(전체 시간대를 확인하려면 Enter를 누르세요)\n');
-
-  const startTimeInput = await askQuestion('입차 시간 범위 (예: 10:00~12:00): ');
-  const endTimeInput = await askQuestion('출차 시간 범위 (예: 18:00~20:00): ');
+  console.log(`선택된 터미널: ${terminalName}`);
 
   console.log('\n시간대별 예약 가능 여부를 확인합니다...\n');
 
@@ -155,28 +221,50 @@ async function main() {
       console.log(`확인할 출차 시간대: ${endTimeSlots.length}개`);
       console.log(`총 조합 수: ${startTimeSlots.length * endTimeSlots.length}개\n`);
 
-      // 예약 가능한 조합 저장
-      interface AvailableSlot {
-        startDateTime: string;
-        endDateTime: string;
-        parkingFee: string;
-        status: string;
-      }
-      const availableSlots: AvailableSlot[] = [];
-
+      const allAvailableSlots: AvailableSlot[] = [];
       let totalChecked = 0;
       let availableCount = 0;
+      let bookingRequested = false;
 
-      // 1단계: 모든 시간대 조합 확인
-      console.log('1단계: 전체 시간대 조합 스캔 중...\n');
+      const BATCH_SIZE = 10;
 
-      for (const startTime of startTimeSlots) {
+      if (jsonMode) {
+        console.log(`JSON 모드: 전체 스캔 후 output.json 저장\n`);
+      } else {
+        console.log(`10개씩 스캔하며 결과를 실시간으로 출력합니다...\n`);
+      }
+      console.log('-'.repeat(80));
+
+      async function askAfterBatch(label: string): Promise<boolean> {
+        console.log(`\n--- ${label} (예약 가능: ${availableCount}개) ---`);
+        if (allAvailableSlots.length > 0) {
+          console.log('\n현재까지 발견된 예약 가능 슬롯:');
+          allAvailableSlots.forEach((s, i) => {
+            console.log(`  [${i + 1}] 입차: ${s.startDateTime}  출차: ${s.endDateTime}  요금: ${s.parkingFee || '-'}원  상태: ${s.status.trim()}`);
+          });
+          const answer = await askQuestion(`\n예약할 슬롯 번호를 입력하세요 (계속 스캔하려면 Enter): `);
+          const slotNum = parseInt(answer.trim());
+          if (!isNaN(slotNum) && slotNum >= 1 && slotNum <= allAvailableSlots.length) {
+            await browser.close();
+            bookingRequested = true;
+            await openBookingBrowser(allAvailableSlots[slotNum - 1], terminalName);
+            return true;
+          }
+        } else {
+          const answer = await askQuestion(`예약 가능한 슬롯이 없습니다. 계속 스캔하시겠습니까? (Enter=계속, q=종료): `);
+          if (answer.trim().toLowerCase() === 'q') {
+            return true;
+          }
+        }
+        console.log();
+        return false;
+      }
+
+      outer: for (const startTime of startTimeSlots) {
         for (const endTime of endTimeSlots) {
-          // 출차 시간이 입차 시간보다 늦어야 함
           const startDateTime = `${startDateInput} ${startTime}`;
           const endDateTime = `${endDateInput} ${endTime}`;
 
-          // 날짜가 같은 경우 출차 시간이 입차 시간보다 늦어야 함
           if (startDateInput === endDateInput) {
             const [startHour, startMin] = startTime.split(':').map(Number);
             const [endHour, endMin] = endTime.split(':').map(Number);
@@ -187,45 +275,26 @@ async function main() {
 
           totalChecked++;
 
-          // 네트워크 요청 완료 대기를 위한 Promise 설정
           const responsePromise = page.waitForResponse(
             response => response.url().includes('/reserve/') && response.status() === 200,
             { timeout: 10000 }
-          ).catch(() => null); // timeout 에러 무시
+          ).catch(() => null);
 
-          // 입차일 설정
           await page.evaluate((dateTime) => {
             const input = document.querySelector('input[name="pinRsvDtm"]') as HTMLInputElement;
-            if (input) {
-              input.value = dateTime;
-              const event = new Event('change', { bubbles: true });
-              input.dispatchEvent(event);
-            }
+            if (input) { input.value = dateTime; input.dispatchEvent(new Event('change', { bubbles: true })); }
           }, startDateTime);
 
-          // 짧은 대기 후 출차일 설정
           await page.waitForTimeout(100);
 
-          // 출차일 설정
           await page.evaluate((dateTime) => {
             const input = document.querySelector('input[name="poutRsvDtm"]') as HTMLInputElement;
-            if (input) {
-              input.value = dateTime;
-              const event = new Event('change', { bubbles: true });
-              input.dispatchEvent(event);
-            }
+            if (input) { input.value = dateTime; input.dispatchEvent(new Event('change', { bubbles: true })); }
           }, endDateTime);
 
-          // AJAX 완료 대기 (네트워크 요청 완료 또는 최대 2초)
-          await Promise.race([
-            responsePromise,
-            page.waitForTimeout(2000)
-          ]);
-
-          // 결과 렌더링 대기
+          await Promise.race([responsePromise, page.waitForTimeout(2000)]);
           await page.waitForTimeout(300);
 
-          // 예약 가능 여부 확인
           const resvePosblYn = await page.evaluate(() => {
             const input = document.querySelector('input[name="resvePosblYn"]') as HTMLInputElement;
             return input ? input.value : '';
@@ -241,68 +310,54 @@ async function main() {
             return input ? input.value : '';
           });
 
-          // 예약 가능한 경우 저장
           if (resvePosblYn === 'Y') {
             availableCount++;
-            availableSlots.push({
-              startDateTime,
-              endDateTime,
-              parkingFee,
-              status: resvePosblSttus
-            });
+            allAvailableSlots.push({ startDateTime, endDateTime, parkingFee, status: resvePosblSttus });
+            console.log(`✅ [${availableCount}] 입차: ${startDateTime}  출차: ${endDateTime}  요금: ${parkingFee || '-'}원  상태: ${resvePosblSttus.trim()}`);
           }
 
-          // 진행 상황 표시 (10개마다)
-          if (totalChecked % 10 === 0) {
-            process.stdout.write(`\r확인 중... ${totalChecked}개 조합 확인 완료 (예약 가능: ${availableCount}개)`);
+          if (!jsonMode && totalChecked % BATCH_SIZE === 0) {
+            const done = await askAfterBatch(`${totalChecked}개 완료`);
+            if (done) break outer;
           }
         }
       }
 
-      console.log(`\n\n총 ${totalChecked}개 조합 확인 완료\n`);
-
-      // 결과 출력
-      if (availableSlots.length > 0) {
-        console.log('='.repeat(80));
-        console.log(`✅ 예약 가능한 시간대 총 ${availableSlots.length}개 발견!`);
-        console.log('='.repeat(80));
-        console.log();
-
-        // 결과 상세 출력 여부 확인
-        const showDetail = await askQuestion(`\n전체 ${availableSlots.length}개 결과를 모두 출력하시겠습니까? (y/n, 기본값 n): `);
-
-        if (showDetail.toLowerCase() === 'y') {
-          console.log();
-          availableSlots.forEach((slot, index) => {
-            console.log(`[${index + 1}]`);
-            console.log(`  입차: ${slot.startDateTime}`);
-            console.log(`  출차: ${slot.endDateTime}`);
-            console.log(`  요금: ${slot.parkingFee}원`);
-            console.log(`  상태: ${slot.status}`);
-            console.log();
-          });
-        } else {
-          // 처음 5개만 출력
-          console.log(`\n처음 5개 결과만 표시합니다:\n`);
-          availableSlots.slice(0, 5).forEach((slot, index) => {
-            console.log(`[${index + 1}]`);
-            console.log(`  입차: ${slot.startDateTime}`);
-            console.log(`  출차: ${slot.endDateTime}`);
-            console.log(`  요금: ${slot.parkingFee}원`);
-            console.log(`  상태: ${slot.status}`);
-            console.log();
-          });
-          if (availableSlots.length > 5) {
-            console.log(`... 외 ${availableSlots.length - 5}개\n`);
-          }
+      if (jsonMode) {
+        // JSON 모드: 결과를 output.json에 저장
+        const output = {
+          timestamp: new Date().toISOString(),
+          inputs: {
+            terminal: terminalInput.trim(),
+            terminalName,
+            checkin_date: startDateInput,
+            checkout_date: endDateInput,
+            checkin_time: startTimeInput || '',
+            checkout_time: endTimeInput || '',
+          },
+          stats: {
+            total_checked: totalChecked,
+            available_count: availableCount,
+          },
+          available_slots: allAvailableSlots,
+        };
+        fs.writeFileSync('output.json', JSON.stringify(output, null, 2), 'utf-8');
+        console.log(`\n✅ output.json 저장 완료 (${availableCount}개 예약 가능 슬롯)`);
+      } else if (!bookingRequested) {
+        // 대화형 모드: 마지막 배치 잔여분 처리
+        if (totalChecked % BATCH_SIZE !== 0) {
+          const done = await askAfterBatch(`스캔 완료 (총 ${totalChecked}개)`);
+          if (done) return;
         }
 
-      } else {
+        console.log('\n' + '='.repeat(80));
+        if (availableCount > 0) {
+          console.log(`✅ 스캔 완료: 총 ${totalChecked}개 조합 중 ${availableCount}개 예약 가능`);
+        } else {
+          console.log(`❌ 스캔 완료: 총 ${totalChecked}개 조합 확인 — 예약 가능한 시간대 없음`);
+          console.log('다른 날짜를 시도해보세요.');
+        }
         console.log('='.repeat(80));
-        console.log('❌ 예약 불가능');
-        console.log('='.repeat(80));
-        console.log('\n해당 날짜에 예약 가능한 시간대가 없습니다.');
-        console.log('다른 날짜를 시도해보세요.\n');
       }
 
     } else {

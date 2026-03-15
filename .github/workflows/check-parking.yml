@@ -1,0 +1,81 @@
+name: 인천공항 주차 조회
+
+on:
+  workflow_dispatch:
+    inputs:
+      terminal:
+        description: '터미널 (1 또는 2)'
+        required: true
+        default: '1'
+        type: choice
+        options:
+          - '1'
+          - '2'
+      checkin_date:
+        description: '입차 날짜 (YYYY-MM-DD)'
+        required: true
+      checkout_date:
+        description: '출차 날짜 (YYYY-MM-DD)'
+        required: true
+      checkin_time:
+        description: '입차 시간 범위 (예: 09:00~12:00, 비워두면 전체)'
+        required: false
+        default: ''
+      checkout_time:
+        description: '출차 시간 범위 (예: 18:00~20:00, 비워두면 전체)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  check-parking:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        working-directory: airport-parking-checker
+        run: pnpm install
+
+      - name: Install Playwright Chromium
+        working-directory: airport-parking-checker
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run parking checker
+        working-directory: airport-parking-checker
+        run: |
+          pnpm exec ts-node src/index.ts \
+            "${{ inputs.terminal }}" \
+            "${{ inputs.checkin_date }}" \
+            "${{ inputs.checkout_date }}" \
+            "${{ inputs.checkin_time }}" \
+            "${{ inputs.checkout_time }}" \
+            --json
+
+      - name: Save results
+        run: |
+          mkdir -p docs/results
+          cp airport-parking-checker/output.json docs/results/latest.json
+          echo "Results saved:"
+          cat docs/results/latest.json
+
+      - name: Commit results
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/results/latest.json
+          git commit -m "🅿️ Update parking results [skip ci]" || echo "No changes to commit"
+          git push
