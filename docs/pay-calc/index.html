@@ -427,9 +427,6 @@
       <span class="preview-name" id="preview-name"></span>
       <button class="preview-remove" onclick="removeFile()" title="제거">✕</button>
     </div>
-    <button class="btn-primary" id="extract-btn" onclick="triggerExtract()" style="margin-top:14px" disabled>
-      AI로 근무기록 분석
-    </button>
   </div>
 
   <!-- Status -->
@@ -671,14 +668,13 @@ function onFileSelect(e) {
     document.getElementById('upload-preview').classList.add('visible');
   };
   reader.readAsDataURL(file);
-  document.getElementById('extract-btn').disabled = false;
+  triggerExtract();
 }
 
 function removeFile() {
   selectedFile = null;
   document.getElementById('file-input').value = '';
   document.getElementById('upload-preview').classList.remove('visible');
-  document.getElementById('extract-btn').disabled = true;
 }
 
 // drag-over 스타일
@@ -716,10 +712,7 @@ function showStatus(state, text, sub = '') {
 async function triggerExtract() {
   const token = document.getElementById('gh-token').value.trim();
   if (!token) return alert('GitHub Token을 먼저 저장하세요.');
-  if (!selectedFile) return alert('이미지를 선택하세요.');
-
-  const btn = document.getElementById('extract-btn');
-  btn.disabled = true;
+  if (!selectedFile) return;
 
   // 1) 이미지를 base64로 읽기
   const base64 = await new Promise((resolve, reject) => {
@@ -765,7 +758,6 @@ async function triggerExtract() {
     }
   } catch(e) {
     showStatus('error', '이미지 업로드 실패', e.message);
-    btn.disabled = false;
     return;
   }
 
@@ -791,7 +783,6 @@ async function triggerExtract() {
     }
   } catch(e) {
     showStatus('error', '워크플로우 트리거 실패', e.message);
-    btn.disabled = false;
     return;
   }
 
@@ -799,7 +790,6 @@ async function triggerExtract() {
 
   // 4) 결과 폴링
   await pollResults(token);
-  btn.disabled = false;
 }
 
 async function pollResults(token) {
