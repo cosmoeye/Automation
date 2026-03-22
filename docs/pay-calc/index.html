@@ -43,23 +43,16 @@
     }
     .back-link:hover { color: var(--text); }
 
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
     .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
 
+    /* ── Card ── */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .card-title {
@@ -71,7 +64,67 @@
       margin-bottom: 16px;
     }
 
-    /* ── Upload area ── */
+    /* ── Collapsible (내 정보 설정) ── */
+    .collapsible-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.03); }
+
+    .collapsible-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .collapsible-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .collapsible-summary {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .collapsible-summary.unsaved {
+      color: var(--yellow);
+    }
+
+    .collapsible-arrow {
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .collapsible-card.open .collapsible-arrow { transform: rotate(180deg); }
+
+    .collapsible-body {
+      display: none;
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .collapsible-card.open .collapsible-body { display: block; }
+    .collapsible-body-inner { padding-top: 20px; }
+
+    /* ── Upload ── */
     .upload-area {
       border: 2px dashed var(--border);
       border-radius: 10px;
@@ -86,12 +139,7 @@
       background: rgba(79,142,247,0.04);
     }
     .upload-area input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
     }
     .upload-icon { font-size: 2rem; margin-bottom: 8px; }
     .upload-text { font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
@@ -108,46 +156,21 @@
       margin-top: 12px;
     }
     .upload-preview.visible { display: flex; }
-    .preview-thumb {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-    .preview-name {
-      font-size: 0.85rem;
-      color: var(--text);
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .preview-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .preview-name { font-size: 0.85rem; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .preview-remove {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 2px 6px;
-      transition: color 0.15s;
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 1.1rem; padding: 2px 6px; transition: color 0.15s;
     }
     .preview-remove:hover { color: var(--red); }
 
-    /* ── Token / status ── */
+    /* ── Token ── */
     .token-row { display: flex; gap: 10px; align-items: flex-end; }
     .token-row input { flex: 1; }
-
     .token-status {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      margin-top: 8px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      background: #0f1117;
-      border: 1px solid var(--border);
+      display: none; align-items: center; gap: 6px; font-size: 0.8rem;
+      margin-top: 8px; padding: 6px 10px; border-radius: 6px;
+      background: #0f1117; border: 1px solid var(--border);
     }
     .token-status.visible { display: flex; }
     .token-status.secure  { border-color: var(--accent); color: var(--accent); }
@@ -155,172 +178,91 @@
 
     /* ── Buttons ── */
     .btn {
-      padding: 9px 16px;
-      border-radius: 8px;
-      border: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
-      white-space: nowrap;
+      padding: 9px 16px; border-radius: 8px; border: none;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s; white-space: nowrap;
     }
     .btn-secondary { background: var(--border); color: var(--text); }
     .btn-secondary:hover { background: #3a3d4e; }
     .btn-danger {
-      background: transparent;
-      border: 1px solid var(--red);
-      color: var(--red);
-      padding: 9px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
+      background: transparent; border: 1px solid var(--red); color: var(--red);
+      padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .btn-danger:hover { background: var(--red); color: #fff; }
-
-    .btn-primary {
-      width: 100%;
-      padding: 13px;
-      border-radius: 10px;
-      border: none;
-      background: var(--blue);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
-      margin-top: 4px;
+    .btn-save {
+      width: 100%; padding: 11px; border-radius: 8px; border: none;
+      background: var(--blue); color: #fff; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; margin-top: 16px;
     }
-    .btn-primary:hover { background: var(--blue-hover); }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-
+    .btn-save:hover { background: var(--blue-hover); }
     .btn-calc {
-      width: 100%;
-      padding: 13px;
-      border-radius: 10px;
-      border: none;
-      background: var(--accent);
-      color: #0f1117;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s;
-      margin-top: 4px;
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: var(--accent); color: #0f1117; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s; margin-top: 4px;
     }
     .btn-calc:hover { background: var(--accent-hover); }
 
-    /* ── Form inputs ── */
+    /* ── Form ── */
     .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 12px;
     }
     .form-row.single { grid-template-columns: 1fr; }
 
-    label {
-      display: block;
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
     label .unit { color: #4a5568; font-size: 0.75rem; margin-left: 4px; }
 
-    input[type="number"] {
-      width: 100%;
-      background: #0f1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.95rem;
-      padding: 9px 12px;
-      outline: none;
-      transition: border-color 0.15s;
-      -moz-appearance: textfield;
+    input[type="number"], input[type="password"] {
+      width: 100%; background: #0f1117; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 0.95rem;
+      padding: 9px 12px; outline: none; transition: border-color 0.15s;
     }
+    input[type="number"] { -moz-appearance: textfield; }
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-    input[type="number"]:focus { border-color: var(--accent); }
-    input[type="password"] {
-      width: 100%;
-      background: #0f1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.95rem;
-      padding: 9px 12px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    input[type="password"]:focus { border-color: var(--accent); }
+    input:focus { border-color: var(--accent); }
 
     .hint { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
     .hint a { color: var(--blue); text-decoration: none; }
     .hint a:hover { text-decoration: underline; }
 
     /* ── Toggle ── */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-    }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
     .toggle-label { font-size: 0.9rem; color: var(--text); }
     .toggle-label small { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
     .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
     .toggle input { opacity: 0; width: 0; height: 0; }
     .toggle-track {
-      position: absolute;
-      inset: 0;
-      background: var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 12px; cursor: pointer; transition: background 0.2s;
     }
     .toggle-track::after {
-      content: '';
-      position: absolute;
-      left: 3px; top: 3px;
-      width: 18px; height: 18px;
-      background: var(--muted);
-      border-radius: 50%;
-      transition: transform 0.2s, background 0.2s;
+      content: ''; position: absolute; left: 3px; top: 3px;
+      width: 18px; height: 18px; background: var(--muted);
+      border-radius: 50%; transition: transform 0.2s, background 0.2s;
     }
     .toggle input:checked + .toggle-track { background: var(--accent); }
     .toggle input:checked + .toggle-track::after { transform: translateX(20px); background: #fff; }
 
-    /* ── Status box (same as parking) ── */
+    /* ── Status ── */
     #status-section { display: none; }
     .status-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #111420;
+      display: flex; align-items: center; gap: 12px; padding: 16px;
+      border-radius: 10px; border: 1px solid var(--border); background: #111420;
     }
     .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--blue);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      flex-shrink: 0;
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin 0.8s linear infinite; flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .status-icon { font-size: 1.3rem; flex-shrink: 0; }
     .status-text { font-size: 0.95rem; }
     .status-sub  { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-    .progress-bar-wrap {
-      height: 4px; background: var(--border);
-      border-radius: 2px; margin-top: 12px; overflow: hidden;
-    }
+    .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-top: 12px; overflow: hidden; }
     .progress-bar {
-      height: 100%; background: var(--blue);
-      border-radius: 2px; width: 0%;
+      height: 100%; background: var(--blue); border-radius: 2px; width: 0%;
       animation: indeterminate 1.5s ease-in-out infinite;
     }
     @keyframes indeterminate {
@@ -333,29 +275,17 @@
 
     /* ── Extracted badge ── */
     .extracted-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: rgba(52,211,153,0.12);
-      border: 1px solid rgba(52,211,153,0.3);
-      color: var(--accent);
-      margin-left: 8px;
-      vertical-align: middle;
+      display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem;
+      padding: 2px 8px; border-radius: 10px;
+      background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3);
+      color: var(--accent); margin-left: 8px; vertical-align: middle;
     }
 
     /* ── Results ── */
     #result-section { display: none; }
     .result-hero { text-align: center; padding: 20px 0 8px; }
     .result-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
-    .result-net {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: -0.02em;
-    }
+    .result-net { font-size: 2.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
     .result-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     .result-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     .result-table td { padding: 8px 4px; border-bottom: 1px solid #1e2130; }
@@ -365,8 +295,7 @@
     .result-table .note-cell { text-align: right; color: #3a4a5e; font-size: 0.78rem; padding-left: 8px; }
     .result-section-header {
       font-size: 0.78rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.06em;
-      padding: 14px 4px 6px;
+      text-transform: uppercase; letter-spacing: 0.06em; padding: 14px 4px 6px;
     }
     .amount-green  { color: var(--accent); }
     .amount-red    { color: var(--red); }
@@ -378,8 +307,7 @@
     }
     .disclaimer {
       margin-top: 16px; padding: 12px 14px;
-      background: rgba(79,142,247,0.06);
-      border: 1px solid rgba(79,142,247,0.2);
+      background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.2);
       border-radius: 8px; font-size: 0.78rem; color: #5a7a9a; line-height: 1.6;
     }
 
@@ -397,23 +325,104 @@
   <h1>💰 급여 계산기</h1>
   <p class="subtitle">근무기록 앱 스크린샷을 업로드하면 자동으로 수당을 분석하고 실수령액을 계산합니다.</p>
 
-  <!-- GitHub Token -->
-  <div class="card">
-    <div class="card-title">⚙️ GitHub 설정</div>
-    <label>Personal Access Token (workflow 권한 필요)</label>
-    <div class="token-row">
-      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
-      <button class="btn btn-secondary" id="save-btn" onclick="saveToken()">저장</button>
-      <button class="btn btn-danger" id="clear-btn" onclick="clearToken()" style="display:none">삭제</button>
+  <!-- ① 내 정보 설정 (접이식) -->
+  <div class="collapsible-card" id="settings-card">
+    <div class="collapsible-header" onclick="toggleSettings()">
+      <div class="collapsible-header-left">
+        <span style="font-size:1.1rem">⚙️</span>
+        <div>
+          <div class="collapsible-title">내 정보 설정</div>
+          <div class="collapsible-summary" id="settings-summary">저장된 정보가 없습니다. 클릭해서 설정하세요.</div>
+        </div>
+      </div>
+      <span class="collapsible-arrow">▼</span>
     </div>
-    <div class="token-status" id="token-status"></div>
-    <p class="hint" style="margin-top:10px">
-      <a href="https://github.com/settings/tokens/new?scopes=workflow,contents&description=pay-calc" target="_blank">토큰 발급하기 →</a>
-      (scopes: <code>workflow</code>, <code>contents</code>)
-    </p>
+    <div class="collapsible-body">
+      <div class="collapsible-body-inner">
+
+        <div class="form-row">
+          <div>
+            <label>통상임금 총액 <span class="unit">원</span></label>
+            <input type="number" id="std-wage" value="" placeholder="9404285" oninput="updateHourlyHint()" />
+          </div>
+          <div>
+            <label>기준시간 <span class="unit">시간</span></label>
+            <input type="number" id="std-hours" value="" placeholder="209" oninput="updateHourlyHint()" />
+          </div>
+        </div>
+        <div class="hint" id="hourly-rate-hint" style="margin-bottom:14px">→ 통상시급: —</div>
+
+        <div class="form-row single">
+          <div>
+            <label>기본급 <span class="unit">원</span></label>
+            <input type="number" id="base-pay" value="" placeholder="9155310" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label>국민연금 <span class="unit">원/월</span></label>
+            <input type="number" id="pension" value="" placeholder="302575" oninput="updateLongCareHint()" />
+          </div>
+          <div>
+            <label>건강보험 <span class="unit">원/월</span></label>
+            <input type="number" id="health" value="" placeholder="380051" oninput="updateLongCareHint()" />
+          </div>
+        </div>
+        <div class="hint" id="long-care-hint" style="margin-bottom:14px">→ 장기요양보험 (건강보험 × 13.14%): —</div>
+
+        <div class="form-row">
+          <div>
+            <label>대출금상환 <span class="unit">원/월</span></label>
+            <input type="number" id="loan" value="" placeholder="833333" />
+          </div>
+          <div>
+            <label>기타공제 <span class="unit">원/월</span></label>
+            <input type="number" id="other" value="" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="form-row single">
+          <div>
+            <label>공제대상 가족수 <span class="unit">명 (본인 포함)</span></label>
+            <input type="number" id="dependents" value="" placeholder="1" min="1" />
+          </div>
+        </div>
+
+        <button class="btn-save" onclick="saveSettings()">저장</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Image Upload -->
+  <!-- ② GitHub Token (접이식) -->
+  <div class="collapsible-card" id="token-card">
+    <div class="collapsible-header" onclick="toggleToken()">
+      <div class="collapsible-header-left">
+        <span style="font-size:1.1rem">🔑</span>
+        <div>
+          <div class="collapsible-title">GitHub 설정</div>
+          <div class="collapsible-summary" id="token-summary">저장된 토큰이 없습니다.</div>
+        </div>
+      </div>
+      <span class="collapsible-arrow">▼</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-body-inner">
+        <label>Personal Access Token <span class="unit">(workflow, contents 권한)</span></label>
+        <div class="token-row" style="margin-top:6px">
+          <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+          <button class="btn btn-secondary" id="save-btn" onclick="saveToken()">저장</button>
+          <button class="btn btn-danger" id="clear-btn" onclick="clearToken()" style="display:none">삭제</button>
+        </div>
+        <div class="token-status" id="token-status"></div>
+        <p class="hint" style="margin-top:10px">
+          <a href="https://github.com/settings/tokens/new?scopes=workflow,contents&description=ai-harness" target="_blank">토큰 발급하기 →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 근무기록 업로드 -->
   <div class="card">
     <div class="card-title">📷 근무기록 업로드</div>
     <div class="upload-area" id="upload-area">
@@ -429,15 +438,15 @@
     </div>
   </div>
 
-  <!-- Status -->
+  <!-- ④ 분석 진행 상황 -->
   <div class="card" id="status-section">
     <div class="card-title">📡 분석 진행 상황</div>
-    <div class="status-box" id="status-box">
+    <div class="status-box">
       <div class="spinner" id="status-spinner"></div>
       <div class="status-icon" id="status-icon" style="display:none"></div>
       <div>
-        <div class="status-text" id="status-text">워크플로우 트리거 중...</div>
-        <div class="status-sub" id="status-sub"></div>
+        <div class="status-text" id="status-text"></div>
+        <div class="status-sub"  id="status-sub"></div>
       </div>
     </div>
     <div class="progress-bar-wrap">
@@ -445,48 +454,11 @@
     </div>
   </div>
 
-  <!-- 통상시급 산출 -->
-  <div class="card">
-    <div class="card-title">📐 통상시급 산출</div>
-    <div class="form-row">
-      <div>
-        <label>통상임금 총액 <span class="unit">원</span></label>
-        <input type="number" id="std-wage" value="9404285" oninput="updateHints()" />
-      </div>
-      <div>
-        <label>기준시간 <span class="unit">시간</span></label>
-        <input type="number" id="std-hours" value="209" oninput="updateHints()" />
-      </div>
-    </div>
-    <div class="hint" id="hourly-rate-hint">→ 통상시급: —</div>
-  </div>
-
-  <!-- 기본급 -->
-  <div class="card">
-    <div class="card-title">💼 기본급</div>
-    <div class="form-row single">
-      <div>
-        <label>기본급 <span class="unit">원</span></label>
-        <input type="number" id="base-pay" value="9155310" />
-      </div>
-    </div>
-  </div>
-
-  <!-- 근무기록 (AI 추출 or 직접 입력) -->
+  <!-- ⑤ 근무기록 (AI 추출 결과 · 수정 가능) -->
   <div class="card">
     <div class="card-title">
       ⏰ 근무기록
       <span class="extracted-badge" id="extracted-badge" style="display:none">✓ AI 추출됨</span>
-    </div>
-    <div class="form-row">
-      <div>
-        <label>월 소정근로 <span class="unit">분</span></label>
-        <input type="number" id="scheduled-min" value="0" min="0" />
-      </div>
-      <div>
-        <label>실제 일한 시간 <span class="unit">분</span></label>
-        <input type="number" id="actual-min" value="0" min="0" />
-      </div>
     </div>
     <div class="form-row">
       <div>
@@ -515,7 +487,7 @@
       </div>
       <div>
         <label>실근무일수 <span class="unit">일</span></label>
-        <input type="number" id="work-days" value="22" min="0" max="31" />
+        <input type="number" id="work-days" value="0" min="0" max="31" />
       </div>
     </div>
     <div class="toggle-row">
@@ -530,48 +502,9 @@
     </div>
   </div>
 
-  <!-- 고정 공제 -->
-  <div class="card">
-    <div class="card-title">🏦 고정 공제</div>
-    <div class="form-row">
-      <div>
-        <label>국민연금 <span class="unit">원/월</span></label>
-        <input type="number" id="pension" value="302575" oninput="updateHints()" />
-      </div>
-      <div>
-        <label>건강보험 <span class="unit">원/월</span></label>
-        <input type="number" id="health" value="380051" oninput="updateHints()" />
-      </div>
-    </div>
-    <div class="hint" id="long-care-hint">→ 장기요양보험 (건강보험 × 13.14%): —</div>
-    <div style="margin-top:14px">
-      <div class="form-row">
-        <div>
-          <label>대출금상환 <span class="unit">원/월</span></label>
-          <input type="number" id="loan" value="833333" />
-        </div>
-        <div>
-          <label>기타공제 <span class="unit">원/월</span></label>
-          <input type="number" id="other" value="0" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 소득세 -->
-  <div class="card">
-    <div class="card-title">📋 소득세</div>
-    <div class="form-row single">
-      <div>
-        <label>공제대상 가족수 <span class="unit">명 (본인 포함)</span></label>
-        <input type="number" id="dependents" value="1" min="1" />
-      </div>
-    </div>
-  </div>
-
   <button class="btn-calc" onclick="calculate()">실수령액 계산하기</button>
 
-  <!-- Result -->
+  <!-- ⑥ 결과 -->
   <div class="card" id="result-section" style="margin-top:20px">
     <div class="card-title">📊 결과</div>
     <div class="result-hero">
@@ -600,6 +533,7 @@ const IMAGE_REPO_PATH = 'docs/uploads/pay-calc-input';
 const RESULT_API_PATH = 'docs/results/pay-calc-result.json';
 const LONG_CARE_RATE  = 0.1314;
 const EMPLOYMENT_RATE = 0.009;
+const SETTINGS_KEY    = 'pay_calc_settings';
 
 // ── 유틸 ─────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -607,15 +541,93 @@ function getVal(id)  { return parseFloat(document.getElementById(id).value) || 0
 function setVal(id, v){ document.getElementById(id).value = v; }
 function gh(token)   { return { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }; }
 function fmt(n)      { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function fmtNum(n)   { return Math.round(n).toLocaleString('ko-KR'); }
 
-// ── 토큰 관리 ─────────────────────────────────────────
+// ── 내 정보 설정 ──────────────────────────────────────
+const DEFAULTS = {
+  stdWage: 9404285, stdHours: 209, basePay: 9155310,
+  pension: 302575, health: 380051, loan: 833333, other: 0, dependents: 1,
+};
+
+function toggleSettings() {
+  document.getElementById('settings-card').classList.toggle('open');
+}
+
+function toggleToken() {
+  document.getElementById('token-card').classList.toggle('open');
+}
+
+function saveSettings() {
+  const s = {
+    stdWage:    getVal('std-wage')    || DEFAULTS.stdWage,
+    stdHours:   getVal('std-hours')   || DEFAULTS.stdHours,
+    basePay:    getVal('base-pay')    || DEFAULTS.basePay,
+    pension:    getVal('pension')     || DEFAULTS.pension,
+    health:     getVal('health')      || DEFAULTS.health,
+    loan:       getVal('loan'),
+    other:      getVal('other'),
+    dependents: getVal('dependents')  || DEFAULTS.dependents,
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  applySettingsSummary(s);
+  document.getElementById('settings-card').classList.remove('open');
+}
+
+function loadSettings() {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  const s   = raw ? JSON.parse(raw) : null;
+
+  if (s) {
+    setVal('std-wage',   s.stdWage);
+    setVal('std-hours',  s.stdHours);
+    setVal('base-pay',   s.basePay);
+    setVal('pension',    s.pension);
+    setVal('health',     s.health);
+    setVal('loan',       s.loan);
+    setVal('other',      s.other);
+    setVal('dependents', s.dependents);
+    applySettingsSummary(s);
+  } else {
+    // 미설정 → 섹션 열어두기
+    document.getElementById('settings-card').classList.add('open');
+    document.getElementById('settings-summary').textContent = '⚠ 저장된 정보가 없습니다. 입력 후 저장하세요.';
+    document.getElementById('settings-summary').className = 'collapsible-summary unsaved';
+  }
+
+  updateHourlyHint();
+  updateLongCareHint();
+  return s;
+}
+
+function applySettingsSummary(s) {
+  const rate = s.stdHours ? fmtNum(s.stdWage / s.stdHours) : '—';
+  const el   = document.getElementById('settings-summary');
+  el.textContent = `통상시급 ${rate}원 · 기본급 ${fmtNum(s.basePay)}원`;
+  el.className   = 'collapsible-summary';
+}
+
+// ── 힌트 ─────────────────────────────────────────────
+function updateHourlyHint() {
+  const wage  = parseFloat(document.getElementById('std-wage').value)  || 0;
+  const hours = parseFloat(document.getElementById('std-hours').value) || 0;
+  document.getElementById('hourly-rate-hint').textContent =
+    wage && hours ? `→ 통상시급: ${fmtNum(wage / hours)}원` : '→ 통상시급: —';
+}
+
+function updateLongCareHint() {
+  const health = parseFloat(document.getElementById('health').value) || 0;
+  document.getElementById('long-care-hint').textContent =
+    health ? `→ 장기요양보험 (건강보험 × 13.14%): ${fmtNum(health * LONG_CARE_RATE)}원` : '→ 장기요양보험: —';
+}
+
+// ── GitHub Token ──────────────────────────────────────
 function setTokenStatus(via) {
   const el  = document.getElementById('token-status');
   const del = document.getElementById('clear-btn');
+  const sum = document.getElementById('token-summary');
   if (!via) {
-    el.className = 'token-status';
-    el.textContent = '';
-    del.style.display = 'none';
+    el.className = 'token-status'; el.textContent = ''; del.style.display = 'none';
+    sum.textContent = '저장된 토큰이 없습니다.';
     return;
   }
   del.style.display = '';
@@ -626,14 +638,14 @@ function setTokenStatus(via) {
     el.className = 'token-status visible local';
     el.innerHTML = '💾 로컬스토리지에 저장됨';
   }
+  sum.textContent = '토큰 저장됨';
 }
 
 async function saveToken() {
-  const t   = document.getElementById('gh-token').value.trim();
+  const t = document.getElementById('gh-token').value.trim();
   if (!t) return alert('토큰을 입력하세요.');
   const btn = document.getElementById('save-btn');
-  btn.textContent = '검증 중...';
-  btn.disabled = true;
+  btn.textContent = '검증 중...'; btn.disabled = true;
   try {
     const res = await fetch('https://api.github.com/user', { headers: gh(t) });
     if (!res.ok) { alert('토큰 검증 실패: ' + res.status); return; }
@@ -651,6 +663,7 @@ async function saveToken() {
   }
   localStorage.setItem('gh_token', t);
   setTokenStatus(via);
+  document.getElementById('token-card').classList.remove('open');
 }
 
 async function clearToken() {
@@ -667,6 +680,8 @@ async function loadToken() {
     setTokenStatus('local');
     return stored;
   }
+  // 토큰 없으면 섹션 열기
+  document.getElementById('token-card').classList.add('open');
   return '';
 }
 
@@ -680,14 +695,12 @@ function onFileSelect(e) {
   selectedFile = file;
   selectedExt  = file.name.split('.').pop().toLowerCase() || 'png';
   document.getElementById('preview-name').textContent = file.name;
-
   const reader = new FileReader();
   reader.onload = ev => {
     document.getElementById('preview-thumb').src = ev.target.result;
     document.getElementById('upload-preview').classList.add('visible');
   };
   reader.readAsDataURL(file);
-
   triggerExtract();
 }
 
@@ -702,25 +715,15 @@ function showStatus(state, text, sub) {
   document.getElementById('status-section').style.display = 'block';
   document.getElementById('status-text').textContent = text;
   document.getElementById('status-sub').textContent  = sub || '';
-
   const spinner = document.getElementById('status-spinner');
   const icon    = document.getElementById('status-icon');
   const bar     = document.getElementById('progress-bar');
-
   if (state === 'loading') {
-    spinner.style.display = 'block';
-    icon.style.display    = 'none';
-    bar.className         = 'progress-bar';
+    spinner.style.display = 'block'; icon.style.display = 'none'; bar.className = 'progress-bar';
   } else if (state === 'done') {
-    spinner.style.display = 'none';
-    icon.style.display    = 'block';
-    icon.textContent      = '✅';
-    bar.className         = 'progress-bar done';
+    spinner.style.display = 'none'; icon.style.display = 'block'; icon.textContent = '✅'; bar.className = 'progress-bar done';
   } else {
-    spinner.style.display = 'none';
-    icon.style.display    = 'block';
-    icon.textContent      = '❌';
-    bar.className         = 'progress-bar failed';
+    spinner.style.display = 'none'; icon.style.display = 'block'; icon.textContent = '❌'; bar.className = 'progress-bar failed';
   }
 }
 
@@ -728,12 +731,11 @@ function showStatus(state, text, sub) {
 async function triggerExtract() {
   const token = document.getElementById('gh-token').value.trim();
   if (!token) {
-    showStatus('error', 'GitHub Token이 없습니다', '위 GitHub 설정 카드에서 토큰을 저장해 주세요.');
+    showStatus('error', 'GitHub Token이 없습니다', '위 GitHub 설정을 펼쳐서 토큰을 저장해 주세요.');
+    document.getElementById('token-card').classList.add('open');
     return;
   }
-  if (!selectedFile) return;
 
-  // 1) 이미지 → base64
   const base64 = await new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onload  = e => resolve(e.target.result.split(',')[1]);
@@ -743,71 +745,44 @@ async function triggerExtract() {
 
   showStatus('loading', '이미지 업로드 중...');
 
-  // 2) GitHub API로 이미지 커밋
   const filePath = `${IMAGE_REPO_PATH}.${selectedExt}`;
   try {
     let sha;
-    const existing = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${filePath}`,
-      { headers: gh(token) }
-    );
-    if (existing.ok) sha = (await existing.json()).sha;
-
+    const ex = await fetch(`https://api.github.com/repos/${REPO}/contents/${filePath}`, { headers: gh(token) });
+    if (ex.ok) sha = (await ex.json()).sha;
     const body = { message: '📷 Upload pay-calc input [skip ci]', content: base64 };
     if (sha) body.sha = sha;
-
-    const up = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${filePath}`,
-      { method: 'PUT', headers: { ...gh(token), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    );
-    if (!up.ok) {
-      const err = await up.json().catch(() => ({}));
-      throw new Error(err.message || up.status);
-    }
-  } catch (e) {
-    showStatus('error', '이미지 업로드 실패', e.message);
-    return;
-  }
+    const up = await fetch(`https://api.github.com/repos/${REPO}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: { ...gh(token), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!up.ok) { const e = await up.json().catch(() => ({})); throw new Error(e.message || up.status); }
+  } catch (e) { showStatus('error', '이미지 업로드 실패', e.message); return; }
 
   showStatus('loading', '워크플로우 트리거 중...');
 
-  // 3) 워크플로우 트리거 (트리거 시각 기록)
   const triggerTime = new Date();
   try {
     const res = await fetch(
       `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
-      {
-        method: 'POST',
-        headers: { ...gh(token), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ref: 'main', inputs: { image_path: filePath } }),
-      }
+      { method: 'POST', headers: { ...gh(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: 'main', inputs: { image_path: filePath } }) }
     );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || res.status);
-    }
-  } catch (e) {
-    showStatus('error', '워크플로우 트리거 실패', e.message);
-    return;
-  }
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  } catch (e) { showStatus('error', '워크플로우 트리거 실패', e.message); return; }
 
   showStatus('loading', 'AI가 근무기록을 분석 중입니다...', '보통 30~60초 소요');
   await pollResults(token, triggerTime);
 }
 
-// ── 폴링 ─────────────────────────────────────────────
 async function pollResults(token, triggerTime) {
-  const TIMEOUT  = 5 * 60 * 1000;
-  const INTERVAL = 8000;
-  const start    = Date.now();
-
-  // run이 생성될 때까지 잠깐 대기
+  const start = Date.now();
+  const TIMEOUT = 5 * 60 * 1000;
   await sleep(6000);
-
   let runId = null;
 
   while (Date.now() - start < TIMEOUT) {
-    // 트리거 시각 이후 생성된 run 찾기
     if (!runId) {
       try {
         const r = await fetch(
@@ -821,18 +796,12 @@ async function pollResults(token, triggerTime) {
         }
       } catch (e) {}
     }
-
-    // run 상태 확인
     if (runId) {
       try {
-        const r = await fetch(
-          `https://api.github.com/repos/${REPO}/actions/runs/${runId}`,
-          { headers: gh(token) }
-        );
+        const r = await fetch(`https://api.github.com/repos/${REPO}/actions/runs/${runId}`, { headers: gh(token) });
         if (r.ok) {
-          const run     = await r.json();
+          const run = await r.json();
           const elapsed = Math.round((Date.now() - start) / 1000);
-
           if (run.status === 'completed') {
             if (run.conclusion === 'success') {
               showStatus('loading', '결과를 불러오는 중...');
@@ -848,17 +817,13 @@ async function pollResults(token, triggerTime) {
         }
       } catch (e) {}
     }
-
-    await sleep(INTERVAL);
+    await sleep(8000);
   }
-
   showStatus('error', '시간 초과', '5분이 지나도 완료되지 않았습니다.');
 }
 
-// ── 결과 fetch (GitHub API → CDN 캐시 우회) ──────────
 async function fetchAndApplyResult(token) {
   try {
-    // GitHub Contents API 로 직접 읽기 → Pages CDN 캐시 영향 없음
     const r = await fetch(
       `https://api.github.com/repos/${REPO}/contents/${RESULT_API_PATH}`,
       { headers: gh(token) }
@@ -866,82 +831,23 @@ async function fetchAndApplyResult(token) {
     if (!r.ok) throw new Error(`파일 조회 실패 (${r.status})`);
     const file = await r.json();
     const data = JSON.parse(atob(file.content.replace(/\n/g, '')));
-
     if (data.status !== 'success') throw new Error('추출 실패: ' + JSON.stringify(data));
 
-    setVal('scheduled-min', data.monthly_scheduled_min              || 0);
-    setVal('actual-min',    data.actual_work_min                    || 0);
-    setVal('overtime',      data.overtime_min                       || 0);
-    setVal('night',         data.night_min                          || 0);
-    setVal('holiday',       data.holiday_min                        || 0);
-    setVal('hol-ext',       data.holiday_overtime_min               || 0);
-    setVal('paid-recog',    data.paid_recognition_allowance_min     || 0);
+    setVal('overtime',   data.overtime_min                   || 0);
+    setVal('night',      data.night_min                      || 0);
+    setVal('holiday',    data.holiday_min                    || 0);
+    setVal('hol-ext',    data.holiday_overtime_min           || 0);
+    setVal('paid-recog', data.paid_recognition_allowance_min || 0);
+
+    // 실근무일수는 appdata에 없으면 0 유지
+    if (data.work_days) setVal('work-days', data.work_days);
 
     document.getElementById('extracted-badge').style.display = 'inline-flex';
-    updateHints();
-
     const ts = data.timestamp ? new Date(data.timestamp).toLocaleString('ko-KR') : '';
     showStatus('done', 'AI 분석 완료! 값을 확인 후 계산하세요.', ts ? `추출 시각: ${ts}` : '');
-
-    document.querySelector('#result-section')
-      ?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
   } catch (e) {
     showStatus('error', '결과 로드 실패', e.message);
   }
-}
-
-// ── 힌트 ─────────────────────────────────────────────
-function updateHints() {
-  const wage   = parseFloat(document.getElementById('std-wage').value)  || 0;
-  const hours  = parseFloat(document.getElementById('std-hours').value) || 0;
-  const health = parseFloat(document.getElementById('health').value)    || 0;
-
-  if (wage && hours)
-    document.getElementById('hourly-rate-hint').textContent =
-      `→ 통상시급: ${Math.round(wage / hours).toLocaleString('ko-KR')}원`;
-
-  if (health)
-    document.getElementById('long-care-hint').textContent =
-      `→ 장기요양보험 (건강보험 × 13.14%): ${Math.round(health * LONG_CARE_RATE).toLocaleString('ko-KR')}원`;
-}
-
-// ── 소득세 계산 ───────────────────────────────────────
-function earnedIncomeDeduction(annual) {
-  let d;
-  if      (annual <= 5_000_000)   d = annual * 0.70;
-  else if (annual <= 15_000_000)  d = 3_500_000  + (annual -  5_000_000) * 0.40;
-  else if (annual <= 45_000_000)  d = 7_500_000  + (annual - 15_000_000) * 0.15;
-  else if (annual <= 100_000_000) d = 12_000_000 + (annual - 45_000_000) * 0.05;
-  else                             d = 14_500_000 + (annual - 100_000_000)* 0.02;
-  return Math.min(d, 20_000_000);
-}
-
-function calcIncomeTax(taxable) {
-  const brackets = [
-    [14_000_000, 0.06], [50_000_000, 0.15], [88_000_000, 0.24],
-    [150_000_000, 0.35], [300_000_000, 0.38], [500_000_000, 0.40],
-    [1_000_000_000, 0.42], [Infinity, 0.45],
-  ];
-  let tax = 0, prev = 0;
-  for (const [limit, rate] of brackets) {
-    if (taxable <= prev) break;
-    tax += (Math.min(taxable, limit) - prev) * rate;
-    prev = limit;
-  }
-  return tax;
-}
-
-function estimateMonthlyTax(gross, dependents, pension, health, longCare, employment) {
-  const annual  = gross * 12;
-  const taxable = Math.max(0,
-    annual - earnedIncomeDeduction(annual)
-           - dependents * 1_500_000
-           - (pension + health + longCare + employment) * 12
-  );
-  const raw   = calcIncomeTax(taxable);
-  const maxC  = annual > 70_000_000 ? 500_000 : annual > 33_000_000 ? 660_000 : 740_000;
-  const credit= Math.min(raw > 1_300_000 ? 715_000 + (raw - 1_300_000) * 0.30 : raw * 0.55, maxC);
-  return Math.max(0, raw - credit) / 12;
 }
 
 // ── 급여 계산 ─────────────────────────────────────────
@@ -949,7 +855,11 @@ function calculate() {
   try {
     const stdWage  = getVal('std-wage');
     const stdHours = getVal('std-hours');
-    if (!stdHours) { alert('기준시간을 입력해 주세요.'); return; }
+    if (!stdWage || !stdHours) {
+      document.getElementById('settings-card').classList.add('open');
+      alert('내 정보 설정에서 통상임금과 기준시간을 먼저 저장해 주세요.');
+      return;
+    }
 
     const basePay      = getVal('base-pay');
     const overtimeMin  = getVal('overtime');
@@ -963,7 +873,7 @@ function calculate() {
     const health       = getVal('health');
     const loan         = getVal('loan');
     const other        = getVal('other');
-    const dependents   = Math.round(getVal('dependents'));
+    const dependents   = Math.round(getVal('dependents')) || 1;
 
     const rate     = stdWage / stdHours;
     const longCare = Math.round(health * LONG_CARE_RATE);
@@ -975,8 +885,7 @@ function calculate() {
     const paidRecogPay = paidRecogMin  / 60 * rate * 1.0;
     const commPay      = workDays >= 15 ? 100_000 : 0;
     const fitnessPay   = workDays >= 15 && fitnessOk ? 100_000 : 0;
-    const totalGross   = basePay + overtimePay + nightPay + holidayPay
-                       + holExtPay + paidRecogPay + commPay + fitnessPay;
+    const totalGross   = basePay + overtimePay + nightPay + holidayPay + holExtPay + paidRecogPay + commPay + fitnessPay;
 
     const employment = totalGross * EMPLOYMENT_RATE;
     const incomeTax  = estimateMonthlyTax(totalGross, dependents, pension, health, longCare, employment);
@@ -984,75 +893,100 @@ function calculate() {
     const totalDed   = pension + health + longCare + employment + incomeTax + localTax + loan + other;
     const net        = totalGross - totalDed;
 
-    // 결과 렌더
     document.getElementById('res-net').textContent = fmt(net);
     document.getElementById('result-section').style.display = 'block';
 
     const minsStr = m => { const h = Math.floor(m/60), mm = m%60; return mm ? `${h}h ${mm}m` : `${h}h`; };
-    const row     = (label, amount, note, cls) =>
+    const row = (label, amount, note, cls) =>
       `<tr><td class="label-cell">${label}</td>`+
       `<td class="amount-cell ${cls||''}">${fmt(amount)}</td>`+
       `<td class="note-cell">${note||''}</td></tr>`;
-    const secHdr  = t => `<tr><td colspan="3" class="result-section-header">${t}</td></tr>`;
+    const secHdr = t => `<tr><td colspan="3" class="result-section-header">${t}</td></tr>`;
 
     let html = secHdr('▶ 지급');
     html += row('기본급', basePay, '', 'amount-green');
-
-    const extras = [
+    for (const [label, mins, pay, mult] of [
       ['연장근무수당',     overtimeMin,  overtimePay,  '× 1.5'],
       ['야간근무수당',     nightMin,     nightPay,     '× 0.5'],
       ['휴일근무수당',     holidayMin,   holidayPay,   '× 0.5'],
       ['휴일연장근무수당', holExtMin,    holExtPay,    '× 0.5'],
       ['유급인정수당',     paidRecogMin, paidRecogPay, '× 1.0'],
-    ];
-    for (const [label, mins, pay, mult] of extras) {
+    ]) {
       if (mins > 0) html += row(label, pay, `${minsStr(mins)} ${mult}`, 'amount-green');
       else html += `<tr><td class="label-cell">${label}</td><td class="amount-cell amount-dim" colspan="2">해당없음</td></tr>`;
     }
-    html += row('통신비',    commPay,    workDays >= 15 ? '' : '15일 미만',    'amount-green');
+    html += row('통신비',    commPay,    workDays >= 15 ? '' : '15일 미만', 'amount-green');
     html += row('체력단련비', fitnessPay, workDays < 15 ? '15일 미만' : !fitnessOk ? '미신청' : '', 'amount-green');
-    html += `<tr class="result-total-row"><td class="label-cell">총 지급액</td>`+
-            `<td class="amount-cell amount-yellow">${fmt(totalGross)}</td><td></td></tr>`;
+    html += `<tr class="result-total-row"><td class="label-cell">총 지급액</td><td class="amount-cell amount-yellow">${fmt(totalGross)}</td><td></td></tr>`;
 
     html += secHdr('▶ 공제');
-    html += row('국민연금',     pension,    '고정',                                              'amount-red');
-    html += row('건강보험',     health,     '고정',                                              'amount-red');
-    html += row('장기요양보험', longCare,   `건강보험 × ${(LONG_CARE_RATE*100).toFixed(2)}%`,   'amount-red');
-    html += row('고용보험',     employment, `총지급 × ${(EMPLOYMENT_RATE*100).toFixed(1)}%`,    'amount-red');
-    html += row('소득세',       incomeTax,  '간이세액표 근사',                                   'amount-red');
-    html += row('지방소득세',   localTax,   '소득세 × 10%',                                     'amount-red');
+    html += row('국민연금',     pension,    '고정',                                            'amount-red');
+    html += row('건강보험',     health,     '고정',                                            'amount-red');
+    html += row('장기요양보험', longCare,   `건강보험 × ${(LONG_CARE_RATE*100).toFixed(2)}%`, 'amount-red');
+    html += row('고용보험',     employment, `총지급 × ${(EMPLOYMENT_RATE*100).toFixed(1)}%`,  'amount-red');
+    html += row('소득세',       incomeTax,  '간이세액표 근사',                                 'amount-red');
+    html += row('지방소득세',   localTax,   '소득세 × 10%',                                   'amount-red');
     if (loan  > 0) html += row('대출금상환', loan,  '', 'amount-red');
     if (other > 0) html += row('기타공제',   other, '', 'amount-red');
-    html += `<tr class="result-total-row"><td class="label-cell">총 공제액</td>`+
-            `<td class="amount-cell amount-red">${fmt(totalDed)}</td><td></td></tr>`;
+    html += `<tr class="result-total-row"><td class="label-cell">총 공제액</td><td class="amount-cell amount-red">${fmt(totalDed)}</td><td></td></tr>`;
 
     document.getElementById('result-body').innerHTML = html;
     document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (e) {
-    alert('계산 중 오류가 발생했습니다: ' + e.message);
+    alert('계산 오류: ' + e.message);
     console.error(e);
   }
 }
 
+// ── 소득세 ────────────────────────────────────────────
+function earnedIncomeDeduction(annual) {
+  let d;
+  if      (annual <= 5_000_000)   d = annual * 0.70;
+  else if (annual <= 15_000_000)  d = 3_500_000  + (annual -  5_000_000) * 0.40;
+  else if (annual <= 45_000_000)  d = 7_500_000  + (annual - 15_000_000) * 0.15;
+  else if (annual <= 100_000_000) d = 12_000_000 + (annual - 45_000_000) * 0.05;
+  else                             d = 14_500_000 + (annual - 100_000_000)* 0.02;
+  return Math.min(d, 20_000_000);
+}
+
+function calcIncomeTax(taxable) {
+  const brackets = [
+    [14_000_000,0.06],[50_000_000,0.15],[88_000_000,0.24],[150_000_000,0.35],
+    [300_000_000,0.38],[500_000_000,0.40],[1_000_000_000,0.42],[Infinity,0.45],
+  ];
+  let tax = 0, prev = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxable <= prev) break;
+    tax += (Math.min(taxable, limit) - prev) * rate;
+    prev = limit;
+  }
+  return tax;
+}
+
+function estimateMonthlyTax(gross, dependents, pension, health, longCare, employment) {
+  const annual  = gross * 12;
+  const taxable = Math.max(0,
+    annual - earnedIncomeDeduction(annual) - dependents * 1_500_000
+           - (pension + health + longCare + employment) * 12
+  );
+  const raw    = calcIncomeTax(taxable);
+  const maxC   = annual > 70_000_000 ? 500_000 : annual > 33_000_000 ? 660_000 : 740_000;
+  const credit = Math.min(raw > 1_300_000 ? 715_000 + (raw - 1_300_000) * 0.30 : raw * 0.55, maxC);
+  return Math.max(0, raw - credit) / 12;
+}
+
 // ── 초기화 ────────────────────────────────────────────
 (function init() {
+  loadSettings();
   loadToken();
-  updateHints();
 
-  // drag & drop (init 안에서 등록 → null ref 방지)
   const area = document.getElementById('upload-area');
-  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
-  area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+  area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('drag-over'); });
+  area.addEventListener('dragleave', ()  => area.classList.remove('drag-over'));
   area.addEventListener('drop', e => {
-    e.preventDefault();
-    area.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) onFileSelect(e);
+    e.preventDefault(); area.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) onFileSelect(e);
   });
-
-  document.getElementById('std-wage').addEventListener('input', updateHints);
-  document.getElementById('std-hours').addEventListener('input', updateHints);
-  document.getElementById('health').addEventListener('input', updateHints);
 })();
 </script>
 </body>
