@@ -630,24 +630,24 @@ async function saveToken() {
   let savedVia = 'local';
   if (window.PasswordCredential) {
     try {
-      const cred = new PasswordCredential({ id: 'github-pat-paycalc', password: t, name: 'GitHub PAT (pay-calc)' });
+      const cred = new PasswordCredential({ id: 'github-pat', password: t, name: 'GitHub PAT (pay-calc)' });
       await navigator.credentials.store(cred); savedVia = 'credential';
     } catch(e) {}
   }
-  localStorage.setItem('gh_token_paycalc', t);
+  localStorage.setItem('gh_token', t);
   setTokenStatus(savedVia);
   btn.textContent = '저장'; btn.disabled = false;
 }
 
 async function clearToken() {
   if (!confirm('저장된 토큰을 삭제하시겠습니까?')) return;
-  localStorage.removeItem('gh_token_paycalc');
+  localStorage.removeItem('gh_token');
   document.getElementById('gh-token').value = '';
   setTokenStatus(null);
 }
 
 async function loadToken() {
-  const stored = localStorage.getItem('gh_token_paycalc') || '';
+  const stored = localStorage.getItem('gh_token') || '';
   if (stored) { document.getElementById('gh-token').value = stored; setTokenStatus('local'); return stored; }
   return '';
 }
