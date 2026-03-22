@@ -75,21 +75,21 @@ jobs:
                           },
                           {
                               "type": "text",
-                              "text": """이 근무 기록 앱 스크린샷에서 아래 항목들을 추출해서 JSON으로 반환해주세요.
-모든 시간은 분(minutes) 단위 정수로 변환하세요. 없는 항목은 0으로 설정하세요.
-
-{
-  "monthly_scheduled_min": 월 소정근로 (분),
-  "actual_work_min": 실제로 일한시간 (분),
-  "paid_recognition_min": 유급인정 (분),
-  "overtime_min": 연장 근무 (분),
-  "night_min": 야간 근무 (분),
-  "holiday_min": 휴일 근무 (분),
-  "holiday_overtime_min": 휴일 연장 근무 (분),
-  "paid_recognition_allowance_min": 추가수당 섹션의 유급인정수당 (분)
-}
-
-JSON만 반환하고 다른 텍스트는 포함하지 마세요."""
+                              "text": (
+                              "이 근무 기록 앱 스크린샷에서 아래 항목들을 추출해서 JSON으로 반환해주세요.\n"
+                              "모든 시간은 분(minutes) 단위 정수로 변환하세요. 없는 항목은 0으로 설정하세요.\n\n"
+                              '{\n'
+                              '  "monthly_scheduled_min": 월 소정근로 (분),\n'
+                              '  "actual_work_min": 실제로 일한시간 (분),\n'
+                              '  "paid_recognition_min": 유급인정 (분),\n'
+                              '  "overtime_min": 연장 근무 (분),\n'
+                              '  "night_min": 야간 근무 (분),\n'
+                              '  "holiday_min": 휴일 근무 (분),\n'
+                              '  "holiday_overtime_min": 휴일 연장 근무 (분),\n'
+                              '  "paid_recognition_allowance_min": 추가수당 섹션의 유급인정수당 (분)\n'
+                              '}\n\n'
+                              "JSON만 반환하고 다른 텍스트는 포함하지 마세요."
+                          )
                           }
                       ],
                   }
