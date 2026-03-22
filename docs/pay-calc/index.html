@@ -561,13 +561,14 @@ function toggleToken() {
 }
 
 function saveSettings() {
+  const prev = (() => { try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch { return {}; } })();
   const s = {
-    annualSalary:   getVal('annual-salary')    || DEFAULTS.annualSalary,
-    hourlyRate:     getVal('hourly-rate')      || DEFAULTS.hourlyRate,
-    prevAnnualComp: getVal('prev-annual-comp') || DEFAULTS.prevAnnualComp,
-    health:         getVal('health')           || DEFAULTS.health,
+    annualSalary:   getVal('annual-salary')    || prev.annualSalary   || DEFAULTS.annualSalary,
+    hourlyRate:     getVal('hourly-rate')      || prev.hourlyRate     || DEFAULTS.hourlyRate,
+    prevAnnualComp: getVal('prev-annual-comp') || prev.prevAnnualComp || DEFAULTS.prevAnnualComp,
+    health:         getVal('health')           || prev.health         || DEFAULTS.health,
     loan:           getVal('loan'),
-    dependents:     getVal('dependents')       || DEFAULTS.dependents,
+    dependents:     getVal('dependents')       || prev.dependents     || DEFAULTS.dependents,
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   applySettingsSummary(s);
