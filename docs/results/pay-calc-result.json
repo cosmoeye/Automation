@@ -1,4 +1,12 @@
 {
-  "status": "pending",
-  "message": "아직 분석된 결과가 없습니다. 이미지를 업로드하세요."
+  "monthly_scheduled_min": 9600,
+  "actual_work_min": 10416,
+  "paid_recognition_min": 1440,
+  "overtime_min": 816,
+  "night_min": 2037,
+  "holiday_min": 833,
+  "holiday_overtime_min": 0,
+  "paid_recognition_allowance_min": 1440,
+  "timestamp": "2026-03-22T15:06:41.000Z",
+  "status": "success"
 }
