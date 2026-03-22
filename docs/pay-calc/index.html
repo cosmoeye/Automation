@@ -360,16 +360,14 @@
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row single">
           <div>
-            <label>국민연금 <span class="unit">원/월</span></label>
-            <input type="number" id="pension" value="" placeholder="302575" oninput="updateLongCareHint()" />
-          </div>
-          <div>
-            <label>건강보험 <span class="unit">원/월</span></label>
-            <input type="number" id="health" value="" placeholder="380051" oninput="updateLongCareHint()" />
+            <label>전년도 연간 보수총액 <span class="unit">원</span></label>
+            <input type="number" id="prev-annual-comp" value="" placeholder="109863720" oninput="updateInsuranceHints()" />
           </div>
         </div>
+        <div class="hint" id="pension-hint" style="margin-bottom:4px">→ 국민연금 (기준소득월액 × 4.75%): —</div>
+        <div class="hint" id="health-hint" style="margin-bottom:4px">→ 건강보험 (보수월액 × 3.595%): —</div>
         <div class="hint" id="long-care-hint" style="margin-bottom:14px">→ 장기요양보험 (건강보험 × 13.14%): —</div>
 
         <div class="form-row single">
@@ -547,9 +545,13 @@ function fmt(n)      { return Math.round(n).toLocaleString('ko-KR') + '원'; }
 function fmtNum(n)   { return Math.round(n).toLocaleString('ko-KR'); }
 
 // ── 내 정보 설정 ──────────────────────────────────────
+const PENSION_RATE   = 0.0475;
+const HEALTH_RATE    = 0.03595;
+const PENSION_CAP    = 6_370_000; // 기준소득월액 상한
+
 const DEFAULTS = {
   stdWage: 9404285, stdHours: 209, annualSalary: 109863720,
-  pension: 302575, health: 380051, loan: 833333, dependents: 1,
+  prevAnnualComp: 109863720, loan: 833333, dependents: 1,
 };
 
 function toggleSettings() {
@@ -562,13 +564,12 @@ function toggleToken() {
 
 function saveSettings() {
   const s = {
-    stdWage:      getVal('std-wage')      || DEFAULTS.stdWage,
-    stdHours:     getVal('std-hours')     || DEFAULTS.stdHours,
-    annualSalary: getVal('annual-salary') || DEFAULTS.annualSalary,
-    pension:      getVal('pension')       || DEFAULTS.pension,
-    health:       getVal('health')        || DEFAULTS.health,
-    loan:         getVal('loan'),
-    dependents:   getVal('dependents')    || DEFAULTS.dependents,
+    stdWage:        getVal('std-wage')          || DEFAULTS.stdWage,
+    stdHours:       getVal('std-hours')         || DEFAULTS.stdHours,
+    annualSalary:   getVal('annual-salary')     || DEFAULTS.annualSalary,
+    prevAnnualComp: getVal('prev-annual-comp')  || DEFAULTS.prevAnnualComp,
+    loan:           getVal('loan'),
+    dependents:     getVal('dependents')        || DEFAULTS.dependents,
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   applySettingsSummary(s);
@@ -580,13 +581,12 @@ function loadSettings() {
   const s   = raw ? JSON.parse(raw) : null;
 
   if (s) {
-    setVal('std-wage',      s.stdWage);
-    setVal('std-hours',     s.stdHours);
-    setVal('annual-salary', s.annualSalary);
-    setVal('pension',       s.pension);
-    setVal('health',        s.health);
-    setVal('loan',          s.loan);
-    setVal('dependents',    s.dependents);
+    setVal('std-wage',         s.stdWage);
+    setVal('std-hours',        s.stdHours);
+    setVal('annual-salary',    s.annualSalary);
+    setVal('prev-annual-comp', s.prevAnnualComp);
+    setVal('loan',             s.loan);
+    setVal('dependents',       s.dependents);
     applySettingsSummary(s);
   } else {
     // 미설정 → 섹션 열어두기
@@ -597,15 +597,16 @@ function loadSettings() {
 
   updateHourlyHint();
   updateBasepayHint();
-  updateLongCareHint();
+  updateInsuranceHints();
   return s;
 }
 
 function applySettingsSummary(s) {
-  const rate = s.stdHours ? fmtNum(s.stdWage / s.stdHours) : '—';
-  const el   = document.getElementById('settings-summary');
+  const rate    = s.stdHours ? fmtNum(s.stdWage / s.stdHours) : '—';
   const basePay = s.annualSalary ? fmtNum(s.annualSalary / 12) : '—';
-  el.textContent = `통상시급 ${rate}원 · 월 기본급 ${basePay}원`;
+  const pension = s.prevAnnualComp ? fmtNum(Math.round(Math.min(s.prevAnnualComp / 12, PENSION_CAP) * PENSION_RATE)) : '—';
+  const el      = document.getElementById('settings-summary');
+  el.textContent = `통상시급 ${rate}원 · 월 기본급 ${basePay}원 · 국민연금 ${pension}원`;
   el.className   = 'collapsible-summary';
 }
 
@@ -623,10 +624,18 @@ function updateBasepayHint() {
     annual ? `→ 월 기본급 (연봉 ÷ 12): ${fmtNum(annual / 12)}원` : '→ 월 기본급 (연봉 ÷ 12): —';
 }
 
-function updateLongCareHint() {
-  const health = parseFloat(document.getElementById('health').value) || 0;
+function updateInsuranceHints() {
+  const prev    = parseFloat(document.getElementById('prev-annual-comp').value) || 0;
+  const monthly = prev / 12;
+  const pension = prev ? Math.round(Math.min(monthly, PENSION_CAP) * PENSION_RATE) : 0;
+  const health  = prev ? Math.round(monthly * HEALTH_RATE) : 0;
+  const longCare = health ? Math.round(health * LONG_CARE_RATE) : 0;
+  document.getElementById('pension-hint').textContent =
+    pension ? `→ 국민연금 (기준소득월액 × 4.75%): ${fmtNum(pension)}원` : '→ 국민연금: —';
+  document.getElementById('health-hint').textContent =
+    health ? `→ 건강보험 (보수월액 × 3.595%): ${fmtNum(health)}원` : '→ 건강보험: —';
   document.getElementById('long-care-hint').textContent =
-    health ? `→ 장기요양보험 (건강보험 × 13.14%): ${fmtNum(health * LONG_CARE_RATE)}원` : '→ 장기요양보험: —';
+    longCare ? `→ 장기요양보험 (건강보험 × 13.14%): ${fmtNum(longCare)}원` : '→ 장기요양보험: —';
 }
 
 // ── GitHub Token ──────────────────────────────────────
@@ -865,9 +874,9 @@ function calculate() {
     const stdWage     = getVal('std-wage');
     const stdHours    = getVal('std-hours');
     const annualSalary = getVal('annual-salary');
-    if (!stdWage || !stdHours || !annualSalary) {
+    if (!stdWage || !stdHours || !annualSalary || !getVal('prev-annual-comp')) {
       document.getElementById('settings-card').classList.add('open');
-      alert('내 정보 설정에서 통상임금, 기준시간, 연봉을 먼저 저장해 주세요.');
+      alert('내 정보 설정에서 통상임금, 기준시간, 연봉, 전년도 연간 보수총액을 먼저 저장해 주세요.');
       return;
     }
 
@@ -878,10 +887,12 @@ function calculate() {
     const holExtMin    = getVal('hol-ext');
     const paidRecogMin = getVal('paid-recog');
     const workDays     = Math.round(getVal('work-days'));
-    const fitnessOk    = document.getElementById('fitness').checked;
-    const pension      = getVal('pension');
-    const health       = getVal('health');
-    const loan         = getVal('loan');
+    const fitnessOk       = document.getElementById('fitness').checked;
+    const prevAnnualComp  = getVal('prev-annual-comp');
+    const prevMonthly     = prevAnnualComp / 12;
+    const pension         = Math.round(Math.min(prevMonthly, PENSION_CAP) * PENSION_RATE);
+    const health          = Math.round(prevMonthly * HEALTH_RATE);
+    const loan            = getVal('loan');
     const other        = getVal('other');
     const dependents   = Math.round(getVal('dependents')) || 1;
 
