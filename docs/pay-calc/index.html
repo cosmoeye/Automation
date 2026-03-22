@@ -350,12 +350,13 @@
             <input type="number" id="std-hours" value="" placeholder="209" oninput="updateHourlyHint()" />
           </div>
         </div>
-        <div class="hint" id="hourly-rate-hint" style="margin-bottom:14px">→ 통상시급: —</div>
+        <div class="hint" id="hourly-rate-hint" style="margin-bottom:4px">→ 통상시급: —</div>
+        <div class="hint" id="basepay-hint" style="margin-bottom:14px">→ 월 기본급 (연봉 ÷ 12): —</div>
 
         <div class="form-row single">
           <div>
-            <label>기본급 <span class="unit">원</span></label>
-            <input type="number" id="base-pay" value="" placeholder="9155310" />
+            <label>연봉 <span class="unit">원</span></label>
+            <input type="number" id="annual-salary" value="" placeholder="109863720" oninput="updateBasepayHint()" />
           </div>
         </div>
 
@@ -371,14 +372,10 @@
         </div>
         <div class="hint" id="long-care-hint" style="margin-bottom:14px">→ 장기요양보험 (건강보험 × 13.14%): —</div>
 
-        <div class="form-row">
+        <div class="form-row single">
           <div>
             <label>대출금상환 <span class="unit">원/월</span></label>
             <input type="number" id="loan" value="" placeholder="833333" />
-          </div>
-          <div>
-            <label>기타공제 <span class="unit">원/월</span></label>
-            <input type="number" id="other" value="" placeholder="0" />
           </div>
         </div>
 
@@ -490,6 +487,12 @@
         <input type="number" id="work-days" value="0" min="0" max="31" />
       </div>
     </div>
+    <div class="form-row single" style="margin-top:4px">
+      <div>
+        <label>기타공제 <span class="unit">원 (명절상여 차감·연말정산 등)</span></label>
+        <input type="number" id="other" value="0" min="0" />
+      </div>
+    </div>
     <div class="toggle-row">
       <div class="toggle-label">
         체력단련비 신청
@@ -545,8 +548,8 @@ function fmtNum(n)   { return Math.round(n).toLocaleString('ko-KR'); }
 
 // ── 내 정보 설정 ──────────────────────────────────────
 const DEFAULTS = {
-  stdWage: 9404285, stdHours: 209, basePay: 9155310,
-  pension: 302575, health: 380051, loan: 833333, other: 0, dependents: 1,
+  stdWage: 9404285, stdHours: 209, annualSalary: 109863720,
+  pension: 302575, health: 380051, loan: 833333, dependents: 1,
 };
 
 function toggleSettings() {
@@ -559,14 +562,13 @@ function toggleToken() {
 
 function saveSettings() {
   const s = {
-    stdWage:    getVal('std-wage')    || DEFAULTS.stdWage,
-    stdHours:   getVal('std-hours')   || DEFAULTS.stdHours,
-    basePay:    getVal('base-pay')    || DEFAULTS.basePay,
-    pension:    getVal('pension')     || DEFAULTS.pension,
-    health:     getVal('health')      || DEFAULTS.health,
-    loan:       getVal('loan'),
-    other:      getVal('other'),
-    dependents: getVal('dependents')  || DEFAULTS.dependents,
+    stdWage:      getVal('std-wage')      || DEFAULTS.stdWage,
+    stdHours:     getVal('std-hours')     || DEFAULTS.stdHours,
+    annualSalary: getVal('annual-salary') || DEFAULTS.annualSalary,
+    pension:      getVal('pension')       || DEFAULTS.pension,
+    health:       getVal('health')        || DEFAULTS.health,
+    loan:         getVal('loan'),
+    dependents:   getVal('dependents')    || DEFAULTS.dependents,
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   applySettingsSummary(s);
@@ -578,14 +580,13 @@ function loadSettings() {
   const s   = raw ? JSON.parse(raw) : null;
 
   if (s) {
-    setVal('std-wage',   s.stdWage);
-    setVal('std-hours',  s.stdHours);
-    setVal('base-pay',   s.basePay);
-    setVal('pension',    s.pension);
-    setVal('health',     s.health);
-    setVal('loan',       s.loan);
-    setVal('other',      s.other);
-    setVal('dependents', s.dependents);
+    setVal('std-wage',      s.stdWage);
+    setVal('std-hours',     s.stdHours);
+    setVal('annual-salary', s.annualSalary);
+    setVal('pension',       s.pension);
+    setVal('health',        s.health);
+    setVal('loan',          s.loan);
+    setVal('dependents',    s.dependents);
     applySettingsSummary(s);
   } else {
     // 미설정 → 섹션 열어두기
@@ -595,6 +596,7 @@ function loadSettings() {
   }
 
   updateHourlyHint();
+  updateBasepayHint();
   updateLongCareHint();
   return s;
 }
@@ -602,7 +604,8 @@ function loadSettings() {
 function applySettingsSummary(s) {
   const rate = s.stdHours ? fmtNum(s.stdWage / s.stdHours) : '—';
   const el   = document.getElementById('settings-summary');
-  el.textContent = `통상시급 ${rate}원 · 기본급 ${fmtNum(s.basePay)}원`;
+  const basePay = s.annualSalary ? fmtNum(s.annualSalary / 12) : '—';
+  el.textContent = `통상시급 ${rate}원 · 월 기본급 ${basePay}원`;
   el.className   = 'collapsible-summary';
 }
 
@@ -612,6 +615,12 @@ function updateHourlyHint() {
   const hours = parseFloat(document.getElementById('std-hours').value) || 0;
   document.getElementById('hourly-rate-hint').textContent =
     wage && hours ? `→ 통상시급: ${fmtNum(wage / hours)}원` : '→ 통상시급: —';
+}
+
+function updateBasepayHint() {
+  const annual = parseFloat(document.getElementById('annual-salary').value) || 0;
+  document.getElementById('basepay-hint').textContent =
+    annual ? `→ 월 기본급 (연봉 ÷ 12): ${fmtNum(annual / 12)}원` : '→ 월 기본급 (연봉 ÷ 12): —';
 }
 
 function updateLongCareHint() {
@@ -853,15 +862,16 @@ async function fetchAndApplyResult(token) {
 // ── 급여 계산 ─────────────────────────────────────────
 function calculate() {
   try {
-    const stdWage  = getVal('std-wage');
-    const stdHours = getVal('std-hours');
-    if (!stdWage || !stdHours) {
+    const stdWage     = getVal('std-wage');
+    const stdHours    = getVal('std-hours');
+    const annualSalary = getVal('annual-salary');
+    if (!stdWage || !stdHours || !annualSalary) {
       document.getElementById('settings-card').classList.add('open');
-      alert('내 정보 설정에서 통상임금과 기준시간을 먼저 저장해 주세요.');
+      alert('내 정보 설정에서 통상임금, 기준시간, 연봉을 먼저 저장해 주세요.');
       return;
     }
 
-    const basePay      = getVal('base-pay');
+    const basePay     = annualSalary / 12;
     const overtimeMin  = getVal('overtime');
     const nightMin     = getVal('night');
     const holidayMin   = getVal('holiday');
