@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>급여 계산기 · Wonseok's AI Harness</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3e;
+      --accent: #34d399;
+      --accent-hover: #22c87e;
+      --blue: #4f8ef7;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .form-row.single { grid-template-columns: 1fr; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    label .unit {
+      color: #4a5568;
+      font-size: 0.75rem;
+      margin-left: 4px;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input:focus { border-color: var(--accent); }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .toggle-label {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .toggle-label small {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::after {
+      transform: translateX(20px);
+      background: #fff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #0f1117;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── Results ── */
+    #result-section { display: none; }
+
+    .result-hero {
+      text-align: center;
+      padding: 20px 0 8px;
+    }
+
+    .result-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .result-net {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .result-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .result-table td {
+      padding: 8px 4px;
+      border-bottom: 1px solid #1e2130;
+    }
+
+    .result-table tr:last-child td { border-bottom: none; }
+
+    .result-table .label-cell {
+      color: var(--muted);
+      width: 50%;
+    }
+
+    .result-table .amount-cell {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-table .note-cell {
+      text-align: right;
+      color: #3a4a5e;
+      font-size: 0.78rem;
+      padding-left: 8px;
+    }
+
+    .result-section-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 14px 4px 6px;
+    }
+
+    .amount-green { color: var(--accent); }
+    .amount-red   { color: var(--red); }
+    .amount-yellow { color: var(--yellow); font-weight: 600; }
+    .amount-dim   { color: #4a5568; }
+
+    .result-total-row td {
+      border-top: 1px solid var(--border);
+      border-bottom: none !important;
+      font-weight: 700;
+      padding-top: 10px;
+    }
+
+    .disclaimer {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: rgba(79,142,247,0.06);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      color: #5a7a9a;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 520px) {
+      .form-row       { grid-template-columns: 1fr; }
+      .form-row.triple { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 1.3rem; }
+      .result-net { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="../">← Wonseok's AI Harness</a>
+
+  <h1>💰 급여 계산기</h1>
+  <p class="subtitle">연장·야간·휴일 수당 및 4대보험 공제를 반영한 실수령액을 계산합니다. (2026 기준)</p>
+
+  <!-- 통상시급 -->
+  <div class="card">
+    <div class="card-title">📐 통상시급 산출</div>
+    <div class="form-row">
+      <div>
+        <label>통상임금 총액 <span class="unit">원</span></label>
+        <input type="number" id="std-wage" value="9404285" />
+      </div>
+      <div>
+        <label>기준시간 <span class="unit">시간</span></label>
+        <input type="number" id="std-hours" value="209" />
+      </div>
+    </div>
+    <div class="hint" id="hourly-rate-hint">→ 통상시급: —</div>
+  </div>
+
+  <!-- 기본급 -->
+  <div class="card">
+    <div class="card-title">💼 기본급</div>
+    <div class="form-row single">
+      <div>
+        <label>기본급 <span class="unit">원</span></label>
+        <input type="number" id="base-pay" value="9155310" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 시간외 근무 -->
+  <div class="card">
+    <div class="card-title">⏰ 시간외 근무</div>
+    <div class="form-row">
+      <div>
+        <label>연장근무 <span class="unit">분 · ×1.5</span></label>
+        <input type="number" id="overtime" value="0" min="0" />
+      </div>
+      <div>
+        <label>야간근무 <span class="unit">분 · ×0.5</span></label>
+        <input type="number" id="night" value="0" min="0" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>휴일근무 <span class="unit">분 · ×0.5</span></label>
+        <input type="number" id="holiday" value="0" min="0" />
+      </div>
+      <div>
+        <label>휴일연장근무 <span class="unit">분 · ×0.5</span></label>
+        <input type="number" id="hol-ext" value="0" min="0" />
+      </div>
+    </div>
+    <div class="form-row single">
+      <div>
+        <label>실근무일수 <span class="unit">일</span></label>
+        <input type="number" id="work-days" value="22" min="0" max="31" />
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">
+        체력단련비 신청
+        <small>실근무 15일 이상 시 100,000원 지급</small>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="fitness" checked />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- 고정 공제 -->
+  <div class="card">
+    <div class="card-title">🏦 고정 공제</div>
+    <div class="form-row">
+      <div>
+        <label>국민연금 <span class="unit">원/월</span></label>
+        <input type="number" id="pension" value="302575" />
+      </div>
+      <div>
+        <label>건강보험 <span class="unit">원/월</span></label>
+        <input type="number" id="health" value="380051" />
+      </div>
+    </div>
+    <div class="hint" id="long-care-hint">→ 장기요양보험 (건강보험 × 13.14%): —</div>
+    <div style="margin-top:14px">
+      <div class="form-row">
+        <div>
+          <label>대출금상환 <span class="unit">원/월</span></label>
+          <input type="number" id="loan" value="833333" />
+        </div>
+        <div>
+          <label>기타공제 <span class="unit">원/월</span></label>
+          <input type="number" id="other" value="0" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 소득세 -->
+  <div class="card">
+    <div class="card-title">📋 소득세</div>
+    <div class="form-row single">
+      <div>
+        <label>공제대상 가족수 <span class="unit">명 (본인 포함)</span></label>
+        <input type="number" id="dependents" value="1" min="1" />
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="calculate()">계산하기</button>
+
+  <!-- Result -->
+  <div class="card" id="result-section" style="margin-top:20px">
+    <div class="card-title">📊 결과</div>
+
+    <div class="result-hero">
+      <div class="result-label">★ 실수령액</div>
+      <div class="result-net" id="res-net">—</div>
+    </div>
+
+    <hr class="result-divider" />
+
+    <table class="result-table">
+      <tbody id="result-body"></tbody>
+    </table>
+
+    <div class="disclaimer">
+      ※ 소득세는 간이세액표 근사값입니다. 연말정산으로 확정됩니다.<br>
+      ※ 국민연금 4.75% / 건강보험 3.595% / 장기요양 13.14% / 고용보험 0.9% (2026 기준)
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 상수 ──────────────────────────────────────────────
+const LONG_CARE_RATE  = 0.1314;
+const EMPLOYMENT_RATE = 0.009;
+
+// ── 유틸 ──────────────────────────────────────────────
+function fmt(n) {
+  return Math.round(n).toLocaleString('ko-KR') + '원';
+}
+
+function fmtWon(n) {
+  return Math.round(n).toLocaleString('ko-KR');
+}
+
+function getVal(id) {
+  return parseFloat(document.getElementById(id).value) || 0;
+}
+
+// ── 소득세 계산 ───────────────────────────────────────
+function earnedIncomeDeduction(annual) {
+  let d;
+  if      (annual <= 5_000_000)   d = annual * 0.70;
+  else if (annual <= 15_000_000)  d = 3_500_000 + (annual - 5_000_000)   * 0.40;
+  else if (annual <= 45_000_000)  d = 7_500_000 + (annual - 15_000_000)  * 0.15;
+  else if (annual <= 100_000_000) d = 12_000_000 + (annual - 45_000_000) * 0.05;
+  else                             d = 14_500_000 + (annual - 100_000_000)* 0.02;
+  return Math.min(d, 20_000_000);
+}
+
+function calcIncomeTax(taxable) {
+  const brackets = [
+    [14_000_000,    0.06],
+    [50_000_000,    0.15],
+    [88_000_000,    0.24],
+    [150_000_000,   0.35],
+    [300_000_000,   0.38],
+    [500_000_000,   0.40],
+    [1_000_000_000, 0.42],
+    [Infinity,      0.45],
+  ];
+  let tax = 0, prev = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxable <= prev) break;
+    tax += (Math.min(taxable, limit) - prev) * rate;
+    prev = limit;
+  }
+  return tax;
+}
+
+function estimateMonthlyTax(gross, dependents, pension, health, longCare, employment) {
+  const annual  = gross * 12;
+  const ei      = earnedIncomeDeduction(annual);
+  const taxable = Math.max(0, annual - ei
+                              - dependents * 1_500_000
+                              - (pension + health + longCare + employment) * 12);
+  const raw     = calcIncomeTax(taxable);
+  const maxCredit = annual > 70_000_000 ? 500_000
+                  : annual > 33_000_000 ? 660_000 : 740_000;
+  const credit  = Math.min(
+    raw > 1_300_000 ? 715_000 + (raw - 1_300_000) * 0.30 : raw * 0.55,
+    maxCredit
+  );
+  return Math.max(0, raw - credit) / 12;
+}
+
+// ── 입력값 힌트 실시간 업데이트 ───────────────────────
+function updateHints() {
+  const stdWage  = getVal('std-wage');
+  const stdHours = getVal('std-hours');
+  const health   = getVal('health');
+
+  if (stdWage && stdHours) {
+    const rate = stdWage / stdHours;
+    document.getElementById('hourly-rate-hint').textContent =
+      `→ 통상시급: ${fmtWon(rate)}원`;
+  }
+
+  if (health) {
+    const lc = Math.round(health * LONG_CARE_RATE);
+    document.getElementById('long-care-hint').textContent =
+      `→ 장기요양보험 (건강보험 × 13.14%): ${fmtWon(lc)}원`;
+  }
+}
+
+['std-wage','std-hours','health'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateHints);
+});
+updateHints();
+
+// ── 핵심 계산 ─────────────────────────────────────────
+function calculate() {
+  const stdWage    = getVal('std-wage');
+  const stdHours   = getVal('std-hours');
+  const basePay    = getVal('base-pay');
+  const overtimeMin = getVal('overtime');
+  const nightMin   = getVal('night');
+  const holidayMin = getVal('holiday');
+  const holExtMin  = getVal('hol-ext');
+  const workDays   = Math.round(getVal('work-days'));
+  const fitnessOk  = document.getElementById('fitness').checked;
+  const pension    = getVal('pension');
+  const health     = getVal('health');
+  const loan       = getVal('loan');
+  const other      = getVal('other');
+  const dependents = Math.round(getVal('dependents'));
+
+  const rate       = stdWage / stdHours;
+  const longCare   = Math.round(health * LONG_CARE_RATE);
+
+  // 지급
+  const overtimePay = overtimeMin / 60 * rate * 1.5;
+  const nightPay    = nightMin    / 60 * rate * 0.5;
+  const holidayPay  = holidayMin  / 60 * rate * 0.5;
+  const holExtPay   = holExtMin   / 60 * rate * 0.5;
+  const commPay     = workDays >= 15 ? 100_000 : 0;
+  const fitnessPay  = (workDays >= 15 && fitnessOk) ? 100_000 : 0;
+  const totalGross  = basePay + overtimePay + nightPay + holidayPay + holExtPay + commPay + fitnessPay;
+
+  // 공제
+  const employment = totalGross * EMPLOYMENT_RATE;
+  const incomeTax  = estimateMonthlyTax(totalGross, dependents, pension, health, longCare, employment);
+  const localTax   = incomeTax * 0.10;
+  const totalDed   = pension + health + longCare + employment + incomeTax + localTax + loan + other;
+  const net        = totalGross - totalDed;
+
+  // ── 렌더 ─────────────────────────────────────────────
+  document.getElementById('res-net').textContent = fmt(net);
+  document.getElementById('result-section').style.display = '';
+
+  function minsStr(m) {
+    const h = Math.floor(m / 60), mm = m % 60;
+    return mm ? `${h}h ${mm}m` : `${h}h`;
+  }
+
+  function row(label, amount, note = '', cls = '') {
+    return `<tr>
+      <td class="label-cell">${label}</td>
+      <td class="amount-cell ${cls}">${fmt(amount)}</td>
+      <td class="note-cell">${note}</td>
+    </tr>`;
+  }
+
+  function secHeader(text) {
+    return `<tr><td colspan="3" class="result-section-header">${text}</td></tr>`;
+  }
+
+  let html = '';
+
+  // 지급
+  html += secHeader('▶ 지급');
+  html += row('기본급', basePay, '', 'amount-green');
+
+  const extras = [
+    ['전월연장근무수당', overtimeMin, overtimePay, '× 1.5'],
+    ['전월야간근무수당', nightMin,    nightPay,    '× 0.5'],
+    ['전월휴일근무수당', holidayMin,  holidayPay,  '× 0.5'],
+    ['휴일연장근무수당', holExtMin,   holExtPay,   '× 0.5'],
+  ];
+
+  for (const [label, mins, pay, mult] of extras) {
+    if (mins > 0) {
+      html += row(label, pay, `${minsStr(mins)} ${mult}`, 'amount-green');
+    } else {
+      html += `<tr>
+        <td class="label-cell">${label}</td>
+        <td class="amount-cell amount-dim" colspan="2">해당없음</td>
+      </tr>`;
+    }
+  }
+
+  html += row('통신비',    commPay,    workDays >= 15 ? '' : '15일 미만 미지급', 'amount-green');
+  html += row('체력단련비', fitnessPay,
+    workDays < 15 ? '15일 미만' : (!fitnessOk ? '미신청' : ''), 'amount-green');
+
+  html += `<tr class="result-total-row">
+    <td class="label-cell">총 지급액</td>
+    <td class="amount-cell amount-yellow">${fmt(totalGross)}</td>
+    <td class="note-cell"></td>
+  </tr>`;
+
+  // 공제
+  html += secHeader('▶ 공제');
+  html += row('국민연금',    pension,    '고정',    'amount-red');
+  html += row('건강보험',    health,     '고정',    'amount-red');
+  html += row('장기요양보험', longCare,   `건강보험 × ${(LONG_CARE_RATE*100).toFixed(2)}%`, 'amount-red');
+  html += row('고용보험',    employment, `총지급 × ${(EMPLOYMENT_RATE*100).toFixed(1)}%`, 'amount-red');
+  html += row('소득세',     incomeTax,  '간이세액표 근사', 'amount-red');
+  html += row('지방소득세',  localTax,   '소득세 × 10%', 'amount-red');
+  if (loan > 0)  html += row('대출금상환', loan,  '', 'amount-red');
+  if (other > 0) html += row('기타공제',   other, '', 'amount-red');
+
+  html += `<tr class="result-total-row">
+    <td class="label-cell">총 공제액</td>
+    <td class="amount-cell amount-red">${fmt(totalDed)}</td>
+    <td class="note-cell"></td>
+  </tr>`;
+
+  document.getElementById('result-body').innerHTML = html;
+
+  // 결과로 스크롤
+  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

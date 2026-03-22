@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인천공항 주차 예약 조회</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3e;
+      --accent: #4f8ef7;
+      --accent-hover: #3a7de6;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-row.single { grid-template-columns: 1fr; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+
+    input[type="password"] { font-family: monospace; letter-spacing: 0.05em; }
+
+    .token-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .token-row input { flex: 1; }
+
+    .token-status {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #0f1117;
+      border: 1px solid var(--border);
+    }
+
+    .token-status.visible { display: flex; }
+    .token-status.secure { border-color: var(--green); color: var(--green); }
+    .token-status.local  { border-color: var(--yellow); color: var(--yellow); }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    .btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover { background: #3a3d4e; }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .hint a { color: var(--accent); text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
+
+    /* Status */
+    #status-section { display: none; }
+
+    .status-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #111420;
+    }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .status-text { font-size: 0.95rem; }
+    .status-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .progress-bar-wrap {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.4s ease;
+      animation: indeterminate 1.5s ease-in-out infinite;
+    }
+
+    @keyframes indeterminate {
+      0%   { margin-left: 0%; width: 30%; }
+      50%  { margin-left: 35%; width: 50%; }
+      100% { margin-left: 100%; width: 0%; }
+    }
+
+    .progress-bar.done { animation: none; width: 100%; background: var(--green); }
+    .progress-bar.failed { animation: none; width: 100%; background: var(--red); }
+
+    /* Results */
+    #results-section { display: none; }
+
+    .result-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .result-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #0f1117;
+      border: 1px solid var(--border);
+    }
+
+    .result-badge.green { border-color: var(--green); color: var(--green); }
+    .result-badge.red { border-color: var(--red); color: var(--red); }
+    .result-badge.blue { border-color: var(--accent); color: var(--accent); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid #1e2130;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1e2235; }
+
+    .fee { font-weight: 600; color: var(--yellow); }
+
+    .btn-book {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: transparent;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-book:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+    .booking-info {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #1a2040;
+      border: 1px solid #2a3a6e;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: #93acd3;
+    }
+
+    .booking-info strong { color: var(--accent); }
+
+    /* ── 캘린더 ── */
+    .date-input-wrap { position: relative; }
+
+    .date-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 9px 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s;
+    }
+
+    .date-trigger:hover,
+    .date-trigger.open { border-color: var(--accent); }
+
+    .date-trigger .placeholder { color: var(--muted); }
+
+    .cal-popup {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 200;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      width: 272px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .cal-popup.open { display: block; }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .cal-nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 3px 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1.4;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .cal-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .cal-month-label { font-weight: 600; font-size: 0.9rem; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .cal-weekday {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 3px 0 6px;
+      font-weight: 600;
+    }
+
+    .cal-day {
+      text-align: center;
+      padding: 6px 2px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.1s;
+      color: var(--text);
+    }
+
+    .cal-day:not(.disabled):not(.empty):hover { background: var(--border); }
+    .cal-day.today { color: var(--accent); font-weight: 700; }
+    .cal-day.selected { background: var(--accent); color: #fff; font-weight: 600; }
+    .cal-day.in-range { background: rgba(79,142,247,0.18); border-radius: 0; }
+    .cal-day.range-start { background: var(--accent); color: #fff; border-radius: 6px 0 0 6px; }
+    .cal-day.range-end   { background: var(--accent); color: #fff; border-radius: 0 6px 6px 0; }
+    .cal-day.disabled { color: #333; cursor: not-allowed; }
+    .cal-day.empty { cursor: default; }
+
+    /* ── 진행률 stats ── */
+    .progress-stats {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.78rem;
+    }
+
+    .progress-stats.visible { display: flex; }
+
+    .prog-pct {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent);
+      min-width: 42px;
+    }
+
+    .prog-eta { color: var(--muted); }
+    .prog-elapsed { color: var(--muted); }
+
+    @media (max-width: 520px) {
+      .form-row { grid-template-columns: 1fr; }
+      h1 { font-size: 1.3rem; }
+      .cal-popup { width: 100%; left: 0; right: 0; }
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="../">← Wonseok's AI Harness</a>
+  <h1>🅿️ 인천공항 주차 조회</h1>
+  <p class="subtitle">GitHub Actions를 통해 예약 가능한 주차 시간대를 자동으로 조회합니다.</p>
+
+  <!-- GitHub Token -->
+  <div class="card">
+    <div class="card-title">⚙️ GitHub 설정</div>
+    <label>Personal Access Token (workflow 권한 필요)</label>
+    <div class="token-row">
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+      <button class="btn btn-secondary" id="save-btn" onclick="saveToken()">저장</button>
+      <button class="btn btn-danger" id="clear-btn" onclick="clearToken()" style="display:none">삭제</button>
+    </div>
+    <div class="token-status" id="token-status"></div>
+    <p class="hint" style="margin-top:10px">
+      <a href="https://github.com/settings/tokens/new?scopes=workflow,contents&description=airport-parking" target="_blank">토큰 발급하기 →</a>
+      (scopes: <code>workflow</code>, <code>contents</code>)
+    </p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="card">
+    <div class="card-title">🔍 조회 조건</div>
+
+    <div class="form-row single">
+      <div>
+        <label>터미널</label>
+        <select id="terminal">
+          <option value="1">제1터미널</option>
+          <option value="2">제2터미널</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label>입차 날짜</label>
+        <div class="date-input-wrap">
+          <div class="date-trigger" id="checkin-trigger" onclick="calToggle('checkin')">
+            <span id="checkin-display" class="placeholder">날짜 선택</span>
+            <span>📅</span>
+          </div>
+          <input type="hidden" id="checkin-date" />
+          <div class="cal-popup" id="checkin-popup"></div>
+        </div>
+      </div>
+      <div>
+        <label>출차 날짜</label>
+        <div class="date-input-wrap">
+          <div class="date-trigger" id="checkout-trigger" onclick="calToggle('checkout')">
+            <span id="checkout-display" class="placeholder">날짜 선택</span>
+            <span>📅</span>
+          </div>
+          <input type="hidden" id="checkout-date" />
+          <div class="cal-popup" id="checkout-popup"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label>입차 시간 범위 <span style="color:var(--muted)">(선택)</span></label>
+        <input type="text" id="checkin-time" placeholder="예: 09:00~12:00" />
+      </div>
+      <div>
+        <label>출차 시간 범위 <span style="color:var(--muted)">(선택)</span></label>
+        <input type="text" id="checkout-time" placeholder="예: 18:00~21:00" />
+      </div>
+    </div>
+
+    <p class="hint" style="margin-bottom:4px">
+      💡 시간 범위를 지정하면 조회 속도가 크게 빨라집니다. 전체 조회 시 최대 2,000개 이상의 조합을 확인해 1시간 이상 소요될 수 있습니다.
+    </p>
+
+    <button class="btn btn-primary" id="search-btn" onclick="triggerSearch()">
+      조회 시작
+    </button>
+  </div>
+
+  <!-- Status -->
+  <div class="card" id="status-section">
+    <div class="card-title">📡 진행 상황</div>
+    <div class="status-box" id="status-box">
+      <div class="spinner" id="status-spinner"></div>
+      <div class="status-icon" id="status-icon" style="display:none"></div>
+      <div>
+        <div class="status-text" id="status-text">워크플로우 트리거 중...</div>
+        <div class="status-sub" id="status-sub"></div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-stats" id="progress-stats">
+      <span class="prog-pct" id="prog-pct">0%</span>
+      <span class="prog-eta" id="prog-eta"></span>
+      <span class="prog-elapsed" id="prog-elapsed"></span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="results-section">
+    <div class="card-title">📋 조회 결과</div>
+    <div class="result-meta" id="result-meta"></div>
+    <div id="results-table-wrap"></div>
+    <div class="booking-info">
+      <strong>예약 방법:</strong> 원하는 슬롯의 「예약하기」 버튼을 클릭하면 인천공항 주차 예약 사이트로 이동합니다.
+      해당 터미널을 선택한 후 표시된 입·출차 일시를 직접 입력하여 예약을 완료하세요.
+    </div>
+  </div>
+</div>
+
+<script>
+const REPO = 'cosmoeye/Automation';
+const WORKFLOW_FILE = 'check-parking.yml';
+const RESULTS_URL = `https://${REPO.split('/')[0]}.github.io/Automation/results/latest.json`;
+
+// ── 토큰 저장/복원 ────────────────────────────────────────
+// 저장 우선순위: Credential Management API > localStorage (fallback)
+
+function setTokenStatus(via) {
+  const el = document.getElementById('token-status');
+  const clearBtn = document.getElementById('clear-btn');
+  if (!via) {
+    el.className = 'token-status';
+    el.textContent = '';
+    clearBtn.style.display = 'none';
+    return;
+  }
+  el.classList.add('visible');
+  clearBtn.style.display = '';
+  if (via === 'credential') {
+    el.className = 'token-status visible secure';
+    el.innerHTML = '🔐 브라우저 비밀번호 저장소에 저장됨 (캐시 삭제 후에도 유지)';
+  } else {
+    el.className = 'token-status visible local';
+    el.innerHTML = '💾 로컬스토리지에 저장됨 (캐시 삭제 시 초기화될 수 있음)';
+  }
+}
+
+async function saveToken() {
+  const t = document.getElementById('gh-token').value.trim();
+  if (!t) return alert('토큰을 입력하세요.');
+
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '검증 중...';
+  btn.disabled = true;
+
+  // 토큰 유효성 검증
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      btn.textContent = '저장';
+      btn.disabled = false;
+      return alert(`토큰 검증 실패: ${err.message || res.status}\n유효한 GitHub PAT를 입력하세요.`);
+    }
+  } catch (e) {
+    btn.textContent = '저장';
+    btn.disabled = false;
+    return alert('토큰 검증 중 오류: ' + e.message);
+  }
+
+  let savedVia = 'local';
+
+  if (window.PasswordCredential) {
+    try {
+      const cred = new PasswordCredential({
+        id: 'github-pat',
+        password: t,
+        name: 'GitHub PAT (airport-parking)',
+      });
+      await navigator.credentials.store(cred);
+      savedVia = 'credential';
+    } catch (e) {
+      console.warn('Credential API 저장 실패, localStorage로 대체:', e);
+    }
+  }
+
+  localStorage.setItem('gh_token', t);
+  setTokenStatus(savedVia);
+
+  btn.textContent = '저장';
+  btn.disabled = false;
+}
+
+async function clearToken() {
+  if (!confirm('저장된 토큰을 삭제하시겠습니까?')) return;
+
+  localStorage.removeItem('gh_token');
+
+  // Credential Management API는 직접 삭제 불가 — 빈 값으로 덮어씌우기
+  if (window.PasswordCredential) {
+    try {
+      const cred = new PasswordCredential({ id: 'github-pat', password: ' ', name: 'GitHub PAT (airport-parking)' });
+      await navigator.credentials.store(cred);
+    } catch {}
+  }
+
+  document.getElementById('gh-token').value = '';
+  setTokenStatus(null);
+}
+
+async function loadToken() {
+  // 1) localStorage 우선 (saveToken()이 명시적으로 저장한 값)
+  const stored = localStorage.getItem('gh_token') || '';
+  if (stored) {
+    document.getElementById('gh-token').value = stored;
+    setTokenStatus('local');
+    return stored;
+  }
+
+  // 2) Credential Management API fallback (localStorage에 없을 때만)
+  if (window.PasswordCredential) {
+    try {
+      const cred = await navigator.credentials.get({
+        password: true,
+        mediation: 'silent',
+      });
+      if (cred?.password && cred.password.trim()) {
+        const t = cred.password.trim();
+        document.getElementById('gh-token').value = t;
+        localStorage.setItem('gh_token', t);
+        setTokenStatus('credential');
+        return t;
+      }
+    } catch (e) {
+      console.warn('Credential API 로드 실패:', e);
+    }
+  }
+
+  return '';
+}
+
+// ── 캘린더 ────────────────────────────────────────────────
+const CAL_WEEKDAYS = ['일','월','화','수','목','금','토'];
+
+const calState = {
+  checkin:  { year: 0, month: 0, selected: null },
+  checkout: { year: 0, month: 0, selected: null },
+};
+
+function calFmt(d)      {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function calDisplay(d)  { return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`; }
+function calToday()     { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function calFromStr(s)  { return new Date(s + 'T00:00:00'); }
+
+function calRender(field) {
+  const s    = calState[field];
+  const pop  = document.getElementById(field + '-popup');
+  const ci   = calState.checkin.selected;
+  const co   = calState.checkout.selected;
+  const today = calToday();
+
+  const firstDay    = new Date(s.year, s.month, 1).getDay();
+  const daysInMonth = new Date(s.year, s.month + 1, 0).getDate();
+
+  let cells = '';
+  for (let i = 0; i < firstDay; i++) cells += '<div class="cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date    = new Date(s.year, s.month, d);
+    const dateStr = calFmt(date);
+    const isPast  = date < today;
+    let cls       = 'cal-day';
+
+    if (isPast) {
+      cls += ' disabled';
+    } else {
+      if (date.toDateString() === today.toDateString()) cls += ' today';
+      if (s.selected && calFmt(s.selected) === dateStr) {
+        cls += field === 'checkin' && co && calFmt(ci) !== calFmt(co) ? ' range-start' :
+               field === 'checkout' && ci && calFmt(ci) !== calFmt(co) ? ' range-end' : ' selected';
+      }
+      if (ci && co && date > ci && date < co) cls += ' in-range';
+    }
+
+    cells += `<div class="${cls}" ${isPast ? '' : `onclick="calSelect('${field}','${dateStr}')"`}>${d}</div>`;
+  }
+
+  pop.innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calMove('${field}',-1)">‹</button>
+      <span class="cal-month-label">${s.year}년 ${s.month + 1}월</span>
+      <button class="cal-nav-btn" onclick="calMove('${field}',1)">›</button>
+    </div>
+    <div class="cal-grid">
+      ${CAL_WEEKDAYS.map(w => `<div class="cal-weekday">${w}</div>`).join('')}
+      ${cells}
+    </div>`;
+}
+
+function calOpen(field) {
+  calRender(field);
+  document.getElementById(field + '-popup').classList.add('open');
+  document.getElementById(field + '-trigger').classList.add('open');
+}
+
+function calClose(field) {
+  document.getElementById(field + '-popup').classList.remove('open');
+  document.getElementById(field + '-trigger').classList.remove('open');
+}
+
+function calToggle(field) {
+  const other = field === 'checkin' ? 'checkout' : 'checkin';
+  calClose(other);
+  const pop = document.getElementById(field + '-popup');
+  if (pop.classList.contains('open')) calClose(field);
+  else calOpen(field);
+}
+
+function calMove(field, delta) {
+  const s = calState[field];
+  s.month += delta;
+  if (s.month > 11) { s.month = 0; s.year++; }
+  if (s.month < 0)  { s.month = 11; s.year--; }
+  calRender(field);
+}
+
+function calSelect(field, dateStr) {
+  const date = calFromStr(dateStr);
+  const s = calState[field];
+  s.selected = date;
+
+  const display = document.getElementById(field + '-display');
+  display.textContent = calDisplay(date);
+  display.classList.remove('placeholder');
+  document.getElementById(field + '-date').value = dateStr;
+
+  if (field === 'checkin') {
+    // 출차가 입차보다 이전이면 초기화
+    const co = calState.checkout;
+    if (co.selected && co.selected < date) {
+      co.selected = null;
+      const coDisplay = document.getElementById('checkout-display');
+      coDisplay.textContent = '날짜 선택';
+      coDisplay.classList.add('placeholder');
+      document.getElementById('checkout-date').value = '';
+    }
+    // 출차 캘린더 뷰를 입차 월로 맞추고 자동 오픈
+    calState.checkout.year  = s.year;
+    calState.checkout.month = s.month;
+    calClose('checkin');
+    if (!calState.checkout.selected) calOpen('checkout');
+    else { calRender('checkin'); calRender('checkout'); }
+  } else {
+    calClose('checkout');
+    calRender('checkin'); // range highlight 갱신
+  }
+}
+
+function calSetDate(field, date) {
+  const s = calState[field];
+  s.selected = date;
+  s.year  = date.getFullYear();
+  s.month = date.getMonth();
+  const display = document.getElementById(field + '-display');
+  display.textContent = calDisplay(date);
+  display.classList.remove('placeholder');
+  document.getElementById(field + '-date').value = calFmt(date);
+}
+
+// ── 캐시 ──────────────────────────────────────────────────
+const CACHE_FORM    = 'parking_form';
+const CACHE_RESULTS = 'parking_results';
+
+function saveFormCache() {
+  localStorage.setItem(CACHE_FORM, JSON.stringify({
+    terminal:     document.getElementById('terminal').value,
+    checkinDate:  document.getElementById('checkin-date').value,
+    checkoutDate: document.getElementById('checkout-date').value,
+    checkinTime:  document.getElementById('checkin-time').value,
+    checkoutTime: document.getElementById('checkout-time').value,
+  }));
+}
+
+// ── 초기화 ────────────────────────────────────────────────
+(function init() {
+  loadToken();
+
+  // 캘린더 초기 상태 (기본값: 내일)
+  const today    = calToday();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  calState.checkin.year   = tomorrow.getFullYear();
+  calState.checkin.month  = tomorrow.getMonth();
+  calState.checkout.year  = tomorrow.getFullYear();
+  calState.checkout.month = tomorrow.getMonth();
+
+  calSetDate('checkin',  tomorrow);
+  calSetDate('checkout', tomorrow);
+
+  // 폼 상태 복원
+  try {
+    const saved = JSON.parse(localStorage.getItem(CACHE_FORM) || 'null');
+    if (saved) {
+      if (saved.terminal) document.getElementById('terminal').value = saved.terminal;
+      if (saved.checkinDate)  calSetDate('checkin',  calFromStr(saved.checkinDate));
+      if (saved.checkoutDate) calSetDate('checkout', calFromStr(saved.checkoutDate));
+      if (saved.checkinTime)  document.getElementById('checkin-time').value  = saved.checkinTime;
+      if (saved.checkoutTime) document.getElementById('checkout-time').value = saved.checkoutTime;
+    }
+  } catch {}
+
+  // 이전 결과 복원
+  try {
+    const data = JSON.parse(localStorage.getItem(CACHE_RESULTS) || 'null');
+    if (data) renderResults(data);
+  } catch {}
+
+  // 팝업 외부 클릭 시 닫기 (re-render로 DOM에서 사라진 요소는 무시)
+  document.addEventListener('click', e => {
+    if (!e.target.isConnected) return;
+    ['checkin', 'checkout'].forEach(f => {
+      const wrap = document.getElementById(f + '-trigger').closest('.date-input-wrap');
+      if (!wrap.contains(e.target)) calClose(f);
+    });
+  });
+})();
+
+// ── 조회 트리거 ───────────────────────────────────────────
+async function triggerSearch() {
+  const token = document.getElementById('gh-token').value.trim();
+  if (!token) return alert('GitHub Personal Access Token을 입력하고 저장하세요.');
+
+  const terminal     = document.getElementById('terminal').value;
+  const checkinDate  = document.getElementById('checkin-date').value;
+  const checkoutDate = document.getElementById('checkout-date').value;
+  const checkinTime  = document.getElementById('checkin-time').value.trim();
+  const checkoutTime = document.getElementById('checkout-time').value.trim();
+
+  if (!checkinDate || !checkoutDate) return alert('입차/출차 날짜를 입력하세요.');
+
+  saveFormCache();
+  document.getElementById('search-btn').disabled = true;
+  showStatus('queued');
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            terminal,
+            checkin_date:  checkinDate,
+            checkout_date: checkoutDate,
+            checkin_time:  checkinTime,
+            checkout_time: checkoutTime,
+          },
+        }),
+      }
+    );
+
+    if (res.status === 204) {
+      showStatus('triggered');
+      await pollWorkflow(token);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+  } catch (e) {
+    showStatus('error', e.message);
+    document.getElementById('search-btn').disabled = false;
+  }
+}
+
+// ── 진행률 헬퍼 ───────────────────────────────────────────
+let _elapsedTimer = null;
+let _startTime    = null;
+
+function formatDuration(secs) {
+  if (secs < 60)  return `${secs}초`;
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return s > 0 ? `${m}분 ${s}초` : `${m}분`;
+}
+
+function startProgressTracking(startTime) {
+  _startTime = startTime;
+  clearInterval(_elapsedTimer);
+  document.getElementById('progress-stats').classList.add('visible');
+  _elapsedTimer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - _startTime) / 1000);
+    document.getElementById('prog-elapsed').textContent = `경과: ${formatDuration(elapsed)}`;
+  }, 1000);
+}
+
+function stopProgressTracking() {
+  clearInterval(_elapsedTimer);
+  _elapsedTimer = null;
+}
+
+function updateProgressPct(pct) {
+  const bar = document.getElementById('progress-bar');
+  document.getElementById('prog-pct').textContent = pct + '%';
+
+  if (pct > 0) {
+    bar.style.animation = 'none';
+    bar.style.marginLeft = '0';
+    bar.style.width = pct + '%';
+  }
+
+  // ETA: 5% 이상 진행됐을 때만 표시
+  if (pct >= 5 && _startTime) {
+    const elapsed = (Date.now() - _startTime) / 1000;
+    const eta = Math.round(elapsed / pct * (100 - pct));
+    document.getElementById('prog-eta').textContent = `예상 남은 시간: ${formatDuration(eta)}`;
+  }
+}
+
+async function getJobSteps(token, runId) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/runs/${runId}/jobs`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    const data = await res.json();
+    return (data.jobs || []).flatMap(j => j.steps || []);
+  } catch { return []; }
+}
+
+// ── 워크플로우 폴링 ───────────────────────────────────────
+async function pollWorkflow(token) {
+  let runId = null;
+  const triggerTime = Date.now();
+
+  // run ID 획득 (최대 15초 대기)
+  for (let i = 0; i < 10; i++) {
+    await sleep(2000);
+    runId = await getLatestRunId(token, triggerTime);
+    if (runId) break;
+  }
+
+  if (!runId) {
+    showStatus('error', 'Run ID를 찾을 수 없습니다. 잠시 후 다시 시도하세요.');
+    document.getElementById('search-btn').disabled = false;
+    return;
+  }
+
+  showStatus('in_progress', `Run #${runId}`);
+
+  // 완료까지 폴링
+  while (true) {
+    await sleep(5000);
+    const [run, steps] = await Promise.all([
+      getRunStatus(token, runId),
+      getJobSteps(token, runId),
+    ]);
+    if (!run) continue;
+
+    // 진행률 계산 (스텝 기반)
+    if (steps.length > 0) {
+      const completed = steps.filter(s => s.status === 'completed').length;
+      const pct = run.status === 'completed' ? 100 : Math.min(Math.round(completed / steps.length * 100), 95);
+      updateProgressPct(pct);
+
+      // 워크플로우 시작 시간으로 elapsed 추적 시작 (최초 1회)
+      if (!_startTime && run.run_started_at) {
+        startProgressTracking(new Date(run.run_started_at).getTime());
+      }
+    }
+
+    if (run.status === 'completed') {
+      stopProgressTracking();
+      updateProgressPct(100);
+      document.getElementById('prog-eta').textContent = '완료';
+
+      if (run.conclusion === 'success') {
+        showStatus('success', `Run #${runId} 완료`);
+        await loadResults(token);
+      } else {
+        showStatus('error', `워크플로우 실패: ${run.conclusion}. GitHub Actions 로그를 확인하세요.`);
+        document.getElementById('search-btn').disabled = false;
+      }
+      break;
+    }
+  }
+}
+
+async function getLatestRunId(token, triggerTime) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=5`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    const data = await res.json();
+    const run = (data.workflow_runs || []).find(r => {
+      const created = new Date(r.created_at).getTime();
+      return created >= triggerTime - 5000; // 5초 여유
+    });
+    return run ? run.id : null;
+  } catch { return null; }
+}
+
+async function getRunStatus(token, runId) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/runs/${runId}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    return await res.json();
+  } catch { return null; }
+}
+
+// ── 결과 로드 ─────────────────────────────────────────────
+async function loadResults(token) {
+  try {
+    // GitHub Pages URL로 직접 fetch (캐시 무력화)
+    const url = RESULTS_URL + '?t=' + Date.now();
+    let data = null;
+
+    // GitHub Pages가 아직 업데이트 안 됐을 수 있으니 Contents API도 시도
+    try {
+      const r = await fetch(url);
+      if (r.ok) data = await r.json();
+    } catch {}
+
+    if (!data) {
+      // Contents API fallback
+      const r2 = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/docs/results/latest.json`,
+        { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+      );
+      const meta = await r2.json();
+      if (meta.content) {
+        data = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+      }
+    }
+
+    if (data) renderResults(data);
+    else showError('결과 파일을 불러오지 못했습니다.');
+  } catch (e) {
+    showError('결과 로드 실패: ' + e.message);
+  } finally {
+    document.getElementById('search-btn').disabled = false;
+  }
+}
+
+// ── 결과 렌더링 ───────────────────────────────────────────
+let currentTerminal = '1';
+
+function renderResults(data) {
+  currentTerminal = data.inputs.terminal || '1';
+  try { localStorage.setItem(CACHE_RESULTS, JSON.stringify(data)); } catch {}
+  const section = document.getElementById('results-section');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const { stats, available_slots, inputs, timestamp } = data;
+  const dt = new Date(timestamp).toLocaleString('ko-KR');
+
+  const meta = document.getElementById('result-meta');
+  meta.innerHTML = `
+    <div class="result-badge blue">🗓️ ${inputs.checkin_date} → ${inputs.checkout_date}</div>
+    <div class="result-badge blue">🅿️ ${inputs.terminalName || '제' + inputs.terminal + '터미널'}</div>
+    <div class="result-badge ${stats.available_count > 0 ? 'green' : 'red'}">
+      ${stats.available_count > 0 ? '✅' : '❌'} ${stats.available_count}개 예약 가능
+    </div>
+    <div class="result-badge">총 ${stats.total_checked}개 확인</div>
+    <div class="result-badge" style="margin-left:auto;font-size:0.75rem;color:var(--muted)">${dt}</div>
+  `;
+
+  const wrap = document.getElementById('results-table-wrap');
+
+  if (!available_slots || available_slots.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <span class="emoji">😔</span>
+        예약 가능한 시간대가 없습니다.<br>
+        <span style="font-size:0.85rem">다른 날짜나 시간대를 시도해보세요.</span>
+      </div>`;
+    return;
+  }
+
+  const rows = available_slots.map((s, i) => {
+    const fee = s.parkingFee
+      ? Number(s.parkingFee.replace(/,/g, '')).toLocaleString('ko-KR') + '원'
+      : '-';
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.startDateTime}</td>
+        <td>${s.endDateTime}</td>
+        <td class="fee">${fee}</td>
+        <td>${s.status ? s.status.trim() : '-'}</td>
+        <td>
+          <button class="btn-book" onclick="openBooking('${s.startDateTime}', '${s.endDateTime}')">
+            예약하기 →
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>입차 일시</th>
+          <th>출차 일시</th>
+          <th>예상 요금</th>
+          <th>상태</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function openBooking(checkin, checkout) {
+  // POST 폼으로 예약 페이지에 날짜/터미널 직접 전달
+  const isT2 = currentTerminal === '2';
+  const siteId      = isT2 ? 'T2' : 'T1';
+  const plotId      = isT2 ? '13' : '10';
+  const plotCmpsnId = isT2 ? 'F1' : '05';
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://parking.airport.kr/reserve/6110_01';
+  form.target = '_blank';
+
+  [['siteId', siteId], ['plotId', plotId], ['plotCmpsnId', plotCmpsnId], ['pinRsvDtm', checkin], ['poutRsvDtm', checkout]].forEach(([name, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  const info = document.querySelector('.booking-info');
+  info.innerHTML = `
+    <strong>선택된 슬롯:</strong>
+    입차 <code>${checkin}</code> / 출차 <code>${checkout}</code><br>
+    예약 페이지가 새 탭으로 열렸습니다. 내용을 확인 후 예약을 완료하세요.
+  `;
+}
+
+// ── 상태 표시 ─────────────────────────────────────────────
+const STATUS_MAP = {
+  queued:      { icon: '⏳', text: '워크플로우 대기 중...', sub: '' },
+  triggered:   { icon: '🚀', text: '워크플로우 시작됨', sub: 'Run 정보 확인 중...' },
+  in_progress: { icon: '⚙️', text: '주차 조회 실행 중', sub: '' },
+  success:     { icon: '✅', text: '조회 완료!', sub: '결과를 불러오는 중...' },
+  error:       { icon: '❌', text: '오류 발생', sub: '' },
+};
+
+function showStatus(state, detail) {
+  const section = document.getElementById('status-section');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const s = STATUS_MAP[state] || STATUS_MAP.error;
+  const spinner = document.getElementById('status-spinner');
+  const icon = document.getElementById('status-icon');
+  const running = ['queued', 'triggered', 'in_progress'].includes(state);
+
+  spinner.style.display = running ? 'block' : 'none';
+  icon.style.display    = running ? 'none'  : 'block';
+  icon.textContent = s.icon;
+
+  document.getElementById('status-text').textContent = s.text;
+  document.getElementById('status-sub').textContent  = detail || s.sub;
+
+  const bar = document.getElementById('progress-bar');
+  bar.className = 'progress-bar';
+  if (state === 'success') bar.classList.add('done');
+  else if (state === 'error') bar.classList.add('failed');
+
+  // 새 조회 시작 시 진행률 초기화
+  if (state === 'queued') {
+    stopProgressTracking();
+    _startTime = null;
+    document.getElementById('progress-stats').classList.remove('visible');
+    document.getElementById('prog-pct').textContent     = '0%';
+    document.getElementById('prog-eta').textContent     = '';
+    document.getElementById('prog-elapsed').textContent = '';
+    bar.style.animation   = '';
+    bar.style.marginLeft  = '';
+    bar.style.width       = '';
+  }
+}
+
+function showError(msg) {
+  showStatus('error', msg);
+  document.getElementById('search-btn').disabled = false;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
