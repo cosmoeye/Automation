@@ -340,13 +340,16 @@
     <div class="collapsible-body">
       <div class="collapsible-body-inner">
 
-        <div class="form-row single">
+        <div class="form-row">
           <div>
             <label>계약연봉 <span class="unit">원</span></label>
             <input type="number" id="annual-salary" value="" placeholder="109863720" oninput="updateSalaryHints()" />
           </div>
+          <div>
+            <label>통상시급 <span class="unit">원 · 명세서 근태 상세 기준</span></label>
+            <input type="number" id="hourly-rate" value="" placeholder="44962" />
+          </div>
         </div>
-        <div class="hint" id="hourly-rate-hint" style="margin-bottom:4px">→ 통상시급 (연봉 ÷ 12 ÷ 209h): —</div>
         <div class="hint" id="basepay-hint" style="margin-bottom:14px">→ 월 기본급 (연봉 ÷ 12): —</div>
 
         <div class="form-row single">
@@ -543,10 +546,9 @@ function fmtNum(n)   { return Math.round(n).toLocaleString('ko-KR'); }
 const PENSION_RATE   = 0.0475;
 const HEALTH_RATE    = 0.03595;
 const PENSION_CAP    = 6_370_000; // 기준소득월액 상한
-const STD_HOURS      = 209;       // 주 40시간 기준 월 소정근로시간 고정값
 
 const DEFAULTS = {
-  annualSalary: 109863720, prevAnnualComp: 167052580,
+  annualSalary: 109863720, hourlyRate: 44962, prevAnnualComp: 167052580,
   health: 380070, loan: 833333, dependents: 1,
 };
 
@@ -561,6 +563,7 @@ function toggleToken() {
 function saveSettings() {
   const s = {
     annualSalary:   getVal('annual-salary')    || DEFAULTS.annualSalary,
+    hourlyRate:     getVal('hourly-rate')      || DEFAULTS.hourlyRate,
     prevAnnualComp: getVal('prev-annual-comp') || DEFAULTS.prevAnnualComp,
     health:         getVal('health')           || DEFAULTS.health,
     loan:           getVal('loan'),
@@ -577,6 +580,7 @@ function loadSettings() {
 
   if (s) {
     setVal('annual-salary',    s.annualSalary);
+    setVal('hourly-rate',      s.hourlyRate);
     setVal('prev-annual-comp', s.prevAnnualComp);
     setVal('health',           s.health);
     setVal('loan',             s.loan);
@@ -596,9 +600,9 @@ function loadSettings() {
 }
 
 function applySettingsSummary(s) {
-  const rate    = s.annualSalary ? fmtNum(s.annualSalary / 12 / STD_HOURS) : '—';
+  const rate    = s.hourlyRate  ? fmtNum(s.hourlyRate)      : '—';
   const basePay = s.annualSalary ? fmtNum(s.annualSalary / 12) : '—';
-  const health  = s.health ? fmtNum(s.health) : '—';
+  const health  = s.health      ? fmtNum(s.health)          : '—';
   const el      = document.getElementById('settings-summary');
   el.textContent = `통상시급 ${rate}원 · 월 기본급 ${basePay}원 · 건강보험 ${health}원`;
   el.className   = 'collapsible-summary';
@@ -607,8 +611,6 @@ function applySettingsSummary(s) {
 // ── 힌트 ─────────────────────────────────────────────
 function updateSalaryHints() {
   const annual = parseFloat(document.getElementById('annual-salary').value) || 0;
-  document.getElementById('hourly-rate-hint').textContent =
-    annual ? `→ 통상시급 (연봉 ÷ 12 ÷ 209h): ${fmtNum(annual / 12 / STD_HOURS)}원` : '→ 통상시급 (연봉 ÷ 12 ÷ 209h): —';
   document.getElementById('basepay-hint').textContent =
     annual ? `→ 월 기본급 (연봉 ÷ 12): ${fmtNum(annual / 12)}원` : '→ 월 기본급 (연봉 ÷ 12): —';
 }
@@ -862,15 +864,14 @@ async function fetchAndApplyResult(token) {
 function calculate() {
   try {
     const annualSalary = getVal('annual-salary');
-    if (!annualSalary || !getVal('prev-annual-comp') || !getVal('health')) {
+    const rate         = getVal('hourly-rate');
+    if (!annualSalary || !rate || !getVal('prev-annual-comp') || !getVal('health')) {
       document.getElementById('settings-card').classList.add('open');
-      alert('내 정보 설정에서 계약연봉, 전년도 연간 보수총액, 건강보험을 먼저 저장해 주세요.');
+      alert('내 정보 설정에서 계약연봉, 통상시급, 전년도 연간 보수총액, 건강보험을 먼저 저장해 주세요.');
       return;
     }
 
-    const basePay  = annualSalary / 12;
-    const stdWage  = annualSalary;
-    const stdHours = STD_HOURS * 12;
+    const basePay = annualSalary / 12;
     const overtimeMin  = getVal('overtime');
     const nightMin     = getVal('night');
     const holidayMin   = getVal('holiday');
@@ -885,7 +886,6 @@ function calculate() {
     const other        = getVal('other');
     const dependents   = Math.round(getVal('dependents')) || 1;
 
-    const rate     = stdWage / stdHours;
     const longCare = Math.round(health * LONG_CARE_RATE);
 
     const overtimePay  = overtimeMin   / 60 * rate * 1.5;
