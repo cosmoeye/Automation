@@ -693,17 +693,17 @@ function showStatus(state, text, sub = '') {
   const spinner = document.getElementById('status-spinner');
   const icon    = document.getElementById('status-icon');
   const bar     = document.getElementById('progress-bar');
-  section.style.display = '';
+  section.style.display = 'block';
   document.getElementById('status-text').textContent = text;
   document.getElementById('status-sub').textContent  = sub;
   if (state === 'loading') {
-    spinner.style.display = ''; icon.style.display = 'none';
+    spinner.style.display = 'block'; icon.style.display = 'none';
     bar.className = 'progress-bar';
   } else if (state === 'done') {
-    spinner.style.display = 'none'; icon.style.display = ''; icon.textContent = '✅';
+    spinner.style.display = 'none'; icon.style.display = 'block'; icon.textContent = '✅';
     bar.className = 'progress-bar done';
   } else if (state === 'error') {
-    spinner.style.display = 'none'; icon.style.display = ''; icon.textContent = '❌';
+    spinner.style.display = 'none'; icon.style.display = 'block'; icon.textContent = '❌';
     bar.className = 'progress-bar failed';
   }
 }
@@ -867,7 +867,7 @@ async function fetchAndApplyResult() {
     setValue('hol-ext',       data.holiday_overtime_min    || 0);
     setValue('paid-recog',    data.paid_recognition_allowance_min || 0);
 
-    document.getElementById('extracted-badge').style.display = '';
+    document.getElementById('extracted-badge').style.display = 'inline-flex';
     showStatus('done', 'AI 분석 완료! 아래 값을 확인하고 계산하세요.',
       `추출 시각: ${new Date(data.timestamp).toLocaleString('ko-KR')}`);
     updateHints();
@@ -978,7 +978,7 @@ function calculate() {
   const net        = totalGross - totalDed;
 
   document.getElementById('res-net').textContent = fmt(net);
-  document.getElementById('result-section').style.display = '';
+  document.getElementById('result-section').style.display = 'block';
 
   function minsStr(m) { const h = Math.floor(m/60), mm = m%60; return mm ? `${h}h ${mm}m` : `${h}h`; }
   function row(label, amount, note='', cls='') {
