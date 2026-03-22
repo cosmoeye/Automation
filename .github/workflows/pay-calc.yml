@@ -1,0 +1,121 @@
+name: 급여 계산기 - 근무기록 추출
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: '분석할 이미지 경로 (repo 내)'
+        required: true
+        default: 'docs/uploads/pay-calc-input.png'
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install anthropic
+        run: pip install anthropic
+
+      - name: Extract work records
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - <<'PYEOF'
+          import anthropic
+          import base64
+          import json
+          import sys
+          import os
+          from datetime import datetime, timezone
+
+          image_path = "${{ inputs.image_path }}"
+
+          if not os.path.exists(image_path):
+              print(f"Error: image not found at {image_path}", file=sys.stderr)
+              sys.exit(1)
+
+          # 이미지 MIME 타입 결정
+          ext = image_path.lower().split('.')[-1]
+          mime_map = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'webp': 'image/webp'}
+          media_type = mime_map.get(ext, 'image/jpeg')
+
+          with open(image_path, 'rb') as f:
+              image_data = base64.standard_b64encode(f.read()).decode('utf-8')
+
+          client = anthropic.Anthropic()
+
+          message = client.messages.create(
+              model="claude-opus-4-6",
+              max_tokens=1024,
+              messages=[
+                  {
+                      "role": "user",
+                      "content": [
+                          {
+                              "type": "image",
+                              "source": {
+                                  "type": "base64",
+                                  "media_type": media_type,
+                                  "data": image_data,
+                              },
+                          },
+                          {
+                              "type": "text",
+                              "text": """이 근무 기록 앱 스크린샷에서 아래 항목들을 추출해서 JSON으로 반환해주세요.
+모든 시간은 분(minutes) 단위 정수로 변환하세요. 없는 항목은 0으로 설정하세요.
+
+{
+  "monthly_scheduled_min": 월 소정근로 (분),
+  "actual_work_min": 실제로 일한시간 (분),
+  "paid_recognition_min": 유급인정 (분),
+  "overtime_min": 연장 근무 (분),
+  "night_min": 야간 근무 (분),
+  "holiday_min": 휴일 근무 (분),
+  "holiday_overtime_min": 휴일 연장 근무 (분),
+  "paid_recognition_allowance_min": 추가수당 섹션의 유급인정수당 (분)
+}
+
+JSON만 반환하고 다른 텍스트는 포함하지 마세요."""
+                          }
+                      ],
+                  }
+              ],
+          )
+
+          raw = message.content[0].text.strip()
+          # 코드블록 제거
+          if raw.startswith("```"):
+              raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+          result = json.loads(raw)
+          result["timestamp"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+          result["status"] = "success"
+
+          os.makedirs("docs/results", exist_ok=True)
+          with open("docs/results/pay-calc-result.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print("Extracted:", json.dumps(result, ensure_ascii=False, indent=2))
+          PYEOF
+
+      - name: Commit results
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/results/pay-calc-result.json
+          git commit -m "💰 Update pay-calc results [skip ci]" || echo "No changes to commit"
+          git push
