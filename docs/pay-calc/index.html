@@ -358,7 +358,7 @@
             <input type="number" id="prev-annual-comp" value="" placeholder="167052580" oninput="updateInsuranceHints()" />
           </div>
         </div>
-        <div class="hint" id="pension-hint" style="margin-bottom:14px">→ 국민연금 (기준소득월액 × 4.5%, 상한 적용): —</div>
+        <div class="hint" id="pension-hint" style="margin-bottom:14px">→ 국민연금 (기준소득월액 × 4.75%, 상한 적용): —</div>
 
         <div class="form-row single">
           <div>
@@ -453,6 +453,26 @@
       ⏰ 근무기록
       <span class="extracted-badge" id="extracted-badge" style="display:none">✓ AI 추출됨</span>
     </div>
+    <div class="form-row single" style="margin-bottom:4px">
+      <div>
+        <label>급여월 <span class="unit">명절상여·건강보험 연말정산 자동 반영</span></label>
+        <select id="pay-month" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.95rem">
+          <option value="">선택</option>
+          <option value="2026-01">2026년 1월 (건강보험 연말정산 자동)</option>
+          <option value="2026-02">2026년 2월 (설날 명절상여 자동)</option>
+          <option value="2026-03">2026년 3월</option>
+          <option value="2026-04">2026년 4월</option>
+          <option value="2026-05">2026년 5월</option>
+          <option value="2026-06">2026년 6월</option>
+          <option value="2026-07">2026년 7월</option>
+          <option value="2026-08">2026년 8월</option>
+          <option value="2026-09">2026년 9월</option>
+          <option value="2026-10">2026년 10월 (추석 명절상여 자동)</option>
+          <option value="2026-11">2026년 11월</option>
+          <option value="2026-12">2026년 12월</option>
+        </select>
+      </div>
+    </div>
     <div class="form-row">
       <div>
         <label>연장 근무 <span class="unit">분 · ×1.5</span></label>
@@ -485,7 +505,7 @@
     </div>
     <div class="form-row single" style="margin-top:4px">
       <div>
-        <label>기타공제 <span class="unit">원 (명절상여 차감·연말정산 등)</span></label>
+        <label>기타공제 <span class="unit">원</span></label>
         <input type="number" id="other" value="0" min="0" />
       </div>
     </div>
@@ -546,6 +566,13 @@ function fmtNum(n)   { return Math.round(n).toLocaleString('ko-KR'); }
 const PENSION_RATE   = 0.0475;
 const HEALTH_RATE    = 0.03595;
 const PENSION_CAP    = 6_370_000; // 기준소득월액 상한
+
+// ── 명절상여 스케줄 (지급=공제 상쇄, 소득세만 영향) ──────────────────
+const HOLIDAY_BONUS = {
+  '2026-02': 200_000,  // 설날 2026-02-17
+  '2026-10': 200_000,  // 추석 2026-10-04
+};
+const HEALTH_ADJ = 95_040; // 건강보험 연말정산 (매년 1월)
 
 const DEFAULTS = {
   annualSalary: 109863720, hourlyRate: 44962, prevAnnualComp: 167052580,
@@ -619,9 +646,9 @@ function updateSalaryHints() {
 function updateInsuranceHints() {
   const prev    = parseFloat(document.getElementById('prev-annual-comp').value) || 0;
   const monthly = prev / 12;
-  const pension = prev ? Math.round(Math.min(monthly, PENSION_CAP) * 0.045) : 0;
+  const pension = prev ? Math.round(Math.min(monthly, PENSION_CAP) * PENSION_RATE) : 0;
   document.getElementById('pension-hint').textContent =
-    pension ? `→ 국민연금 (기준소득월액 × 4.5%, 상한 적용): ${fmtNum(pension)}원` : '→ 국민연금 (기준소득월액 × 4.5%, 상한 적용): —';
+    pension ? `→ 국민연금 (기준소득월액 × 4.75%, 상한 적용): ${fmtNum(pension)}원` : '→ 국민연금 (기준소득월액 × 4.75%, 상한 적용): —';
 }
 
 function updateLongCareHint() {
@@ -896,13 +923,19 @@ function calculate() {
     const workDays     = Math.round(getVal('work-days'));
     const fitnessOk      = document.getElementById('fitness').checked;
     const prevAnnualComp = getVal('prev-annual-comp');
-    const pension        = Math.round(Math.min(prevAnnualComp / 12, PENSION_CAP) * 0.045);
+    const pension        = Math.round(Math.min(prevAnnualComp / 12, PENSION_CAP) * PENSION_RATE);
     const health         = getVal('health');
     const loan           = getVal('loan');
     const other        = getVal('other');
     const dependents   = Math.round(getVal('dependents')) || 1;
+    const payMonth     = document.getElementById('pay-month').value;
 
     const longCare = Math.round(health * LONG_CARE_RATE);
+
+    // 명절상여: 해당 월 자동 반영 (지급=공제 상쇄, 실수령 무영향)
+    const holidayBonus = HOLIDAY_BONUS[payMonth] || 0;
+    // 건강보험 연말정산: 1월 자동 반영
+    const healthAdj    = payMonth === '2026-01' ? HEALTH_ADJ : 0;
 
     const overtimePay  = overtimeMin   / 60 * rate * 1.5;
     const nightPay     = nightMin      / 60 * rate * 0.5;
@@ -911,12 +944,12 @@ function calculate() {
     const paidRecogPay = paidRecogMin  / 60 * rate * 1.0;
     const commPay      = workDays >= 15 ? 100_000 : 0;
     const fitnessPay   = workDays >= 15 && fitnessOk ? 100_000 : 0;
-    const totalGross   = basePay + overtimePay + nightPay + holidayPay + holExtPay + paidRecogPay + commPay + fitnessPay;
+    const totalGross   = basePay + overtimePay + nightPay + holidayPay + holExtPay + paidRecogPay + commPay + fitnessPay + holidayBonus;
 
-    const employment = totalGross * EMPLOYMENT_RATE;
+    const employment = Math.round(totalGross * EMPLOYMENT_RATE);
     const incomeTax  = estimateMonthlyTax(totalGross, dependents, pension, health, longCare, employment);
     const localTax   = incomeTax * 0.10;
-    const totalDed   = pension + health + longCare + employment + incomeTax + localTax + loan + other;
+    const totalDed   = pension + health + longCare + employment + incomeTax + localTax + loan + other + holidayBonus + healthAdj;
     const net        = totalGross - totalDed;
 
     document.getElementById('res-net').textContent = fmt(net);
@@ -932,28 +965,31 @@ function calculate() {
     let html = secHdr('▶ 지급');
     html += row('기본급', basePay, '', 'amount-green');
     for (const [label, mins, pay, mult] of [
-      ['연장근무수당',     overtimeMin,  overtimePay,  '× 1.5'],
-      ['야간근무수당',     nightMin,     nightPay,     '× 0.5'],
-      ['휴일근무수당',     holidayMin,   holidayPay,   '× 0.5'],
-      ['휴일연장근무수당', holExtMin,    holExtPay,    '× 0.5'],
-      ['유급인정수당',     paidRecogMin, paidRecogPay, '× 1.0'],
+      ['전월연장근무수당',  overtimeMin,  overtimePay,  '× 1.5'],
+      ['전월야간근무수당',  nightMin,     nightPay,     '× 0.5'],
+      ['전월휴일근무수당',  holidayMin,   holidayPay,   '× 0.5'],
+      ['휴일연장근무수당',  holExtMin,    holExtPay,    '× 0.5'],
+      ['전월유급인정수당',  paidRecogMin, paidRecogPay, '× 1.0'],
     ]) {
       if (mins > 0) html += row(label, pay, `${minsStr(mins)} ${mult}`, 'amount-green');
       else html += `<tr><td class="label-cell">${label}</td><td class="amount-cell amount-dim" colspan="2">해당없음</td></tr>`;
     }
     html += row('통신비',    commPay,    workDays >= 15 ? '' : '15일 미만', 'amount-green');
     html += row('체력단련비', fitnessPay, workDays < 15 ? '15일 미만' : !fitnessOk ? '미신청' : '', 'amount-green');
+    if (holidayBonus > 0) html += row('명절상여', holidayBonus, '지급=공제 상쇄', 'amount-green');
     html += `<tr class="result-total-row"><td class="label-cell">총 지급액</td><td class="amount-cell amount-yellow">${fmt(totalGross)}</td><td></td></tr>`;
 
     html += secHdr('▶ 공제');
-    html += row('국민연금',     pension,    '고정',                                            'amount-red');
-    html += row('건강보험',     health,     '고정',                                            'amount-red');
-    html += row('장기요양보험', longCare,   `건강보험 × ${(LONG_CARE_RATE*100).toFixed(2)}%`, 'amount-red');
-    html += row('고용보험',     employment, `총지급 × ${(EMPLOYMENT_RATE*100).toFixed(1)}%`,  'amount-red');
-    html += row('소득세',       incomeTax,  '간이세액표 근사',                                 'amount-red');
-    html += row('지방소득세',   localTax,   '소득세 × 10%',                                   'amount-red');
+    html += row('국민연금',     pension,    `전년보수 ÷ 12 × ${(PENSION_RATE*100).toFixed(2)}%`, 'amount-red');
+    html += row('건강보험',     health,     '고정',                                               'amount-red');
+    html += row('장기요양보험', longCare,   `건강보험 × ${(LONG_CARE_RATE*100).toFixed(2)}%`,    'amount-red');
+    html += row('고용보험',     employment, `총지급 × ${(EMPLOYMENT_RATE*100).toFixed(1)}%`,     'amount-red');
+    html += row('소득세',       incomeTax,  '간이세액표 근사',                                    'amount-red');
+    html += row('지방소득세',   localTax,   '소득세 × 10%',                                      'amount-red');
     if (loan  > 0) html += row('대출금상환', loan,  '', 'amount-red');
     if (other > 0) html += row('기타공제',   other, '', 'amount-red');
+    if (holidayBonus > 0) html += row('명절상여(소득세반영)', holidayBonus, '지급 상쇄', 'amount-red');
+    if (healthAdj    > 0) html += row('건강보험 연말정산',    healthAdj,    '전년 정산, 1월 자동', 'amount-red');
     html += `<tr class="result-total-row"><td class="label-cell">총 공제액</td><td class="amount-cell amount-red">${fmt(totalDed)}</td><td></td></tr>`;
 
     document.getElementById('result-body').innerHTML = html;
