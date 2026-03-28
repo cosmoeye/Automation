@@ -696,24 +696,33 @@
     </div>
   </div>
 
-  <!-- ── 내보내기 ── -->
+  <!-- ── 저장 & 업데이트 ── -->
   <div class="section">
     <div class="section-title">
-      <div class="section-title-left">내보내기</div>
+      <div class="section-title-left">저장 & 배당 데이터 업데이트</div>
     </div>
+
+    <!-- Primary action -->
+    <button class="btn btn-export" style="width:100%;justify-content:center;padding:14px;font-size:0.95rem;margin-bottom:14px" onclick="pushAndUpdate()">
+      ☁️ GitHub에 저장하고 배당 데이터 업데이트
+    </button>
+
+    <div id="pushStatus" style="display:none;margin-bottom:14px">
+      <div class="loading-box visible" id="pushLoadingBox" style="padding:14px">
+        <div class="spinner" style="border-top-color:var(--green)"></div>
+        <span id="pushStatusText">업로드 중...</span>
+      </div>
+      <div class="error-box" id="pushErrorBox"></div>
+      <div id="pushSuccessBox" style="display:none;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:8px;padding:12px 16px;font-size:0.82rem;color:var(--green)"></div>
+    </div>
+
+    <!-- Secondary actions -->
     <div class="export-row">
-      <button class="btn btn-export" onclick="downloadJSON()">⬇ holdings.json 다운로드</button>
+      <button class="btn btn-secondary" onclick="downloadJSON()">⬇ 파일 다운로드</button>
       <button class="btn btn-secondary" onclick="togglePreview()">{ } JSON 미리보기</button>
-      <button class="btn btn-secondary" onclick="copyJSON()">⎘ 클립보드 복사</button>
+      <button class="btn btn-secondary" onclick="copyJSON()">⎘ 복사</button>
     </div>
     <div class="json-preview" id="jsonPreview"></div>
-    <div class="info-box" style="margin-top:14px">
-      <b>배당 데이터 업데이트 방법</b><br>
-      1. <code>holdings.json</code>을 다운로드해 저장소에 커밋하면 GitHub Actions가 자동 실행됩니다.<br>
-      2. 로컬에서 바로 실행하려면:<br>
-      &nbsp;&nbsp;<code>pip install yfinance pandas</code><br>
-      &nbsp;&nbsp;<code>python3 scripts/fetch_dividends.py</code>
-    </div>
   </div>
 
 </div>
@@ -728,6 +737,7 @@ const REPO              = 'cosmoeye/Automation';
 const WORKFLOW_FILE     = 'dividend-photo-extract.yml';
 const IMAGE_REPO_PATH   = 'docs/uploads/dividend-photo-input';
 const RESULT_REPO_PATH  = 'docs/results/dividend-photo-result.json';
+const HOLDINGS_REPO_PATH = 'docs/dividend-tracker/holdings.json';
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function gh(token) { return { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }; }
@@ -1213,6 +1223,85 @@ function buildJSON() {
       return obj;
     }),
   }, null, 2);
+}
+
+// ── Push to GitHub & trigger update ───────────────────────────────────────
+async function pushAndUpdate() {
+  const token = getGhToken();
+  if (!token) {
+    showToast('GitHub 토큰이 없습니다. 사진 입력 섹션에서 먼저 저장해주세요', false);
+    document.getElementById('ghTokenInputArea').style.display = 'block';
+    document.getElementById('ghTokenSetArea').style.display = 'none';
+    return;
+  }
+  if (!loadHoldings().length) { showToast('종목을 먼저 추가해주세요', false); return; }
+
+  const statusEl   = document.getElementById('pushStatus');
+  const loadingEl  = document.getElementById('pushLoadingBox');
+  const textEl     = document.getElementById('pushStatusText');
+  const errorEl    = document.getElementById('pushErrorBox');
+  const successEl  = document.getElementById('pushSuccessBox');
+
+  const setStatus = (msg) => { textEl.textContent = msg; };
+  const showErr   = (msg) => {
+    loadingEl.style.display = 'none';
+    errorEl.textContent = '✗ ' + msg; errorEl.className = 'error-box visible';
+  };
+
+  statusEl.style.display = 'block';
+  loadingEl.style.display = 'flex';
+  errorEl.className = 'error-box';
+  successEl.style.display = 'none';
+
+  try {
+    setStatus('holdings.json 업로드 중...');
+
+    const content = btoa(unescape(encodeURIComponent(buildJSON())));
+
+    // 기존 파일 SHA 조회
+    let sha;
+    const ex = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${HOLDINGS_REPO_PATH}`,
+      { headers: gh(token) }
+    );
+    if (ex.ok) sha = (await ex.json()).sha;
+
+    const body = {
+      message: `📋 Update holdings (${loadHoldings().length}개 종목) [skip ci trigger]`,
+      content,
+    };
+    if (sha) body.sha = sha;
+
+    const up = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${HOLDINGS_REPO_PATH}`,
+      { method: 'PUT', headers: { ...gh(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body) }
+    );
+    if (!up.ok) { const e = await up.json().catch(() => ({})); throw new Error(e.message || up.status); }
+
+    setStatus('GitHub Actions 트리거 중...');
+
+    // dividend-tracker.yml은 holdings.json push로 자동 실행되지만
+    // [skip ci trigger] 메시지로 올렸으므로 workflow_dispatch로 명시 트리거
+    const tr = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/dividend-tracker.yml/dispatches`,
+      { method: 'POST', headers: { ...gh(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: 'main' }) }
+    );
+    if (!tr.ok) { const e = await tr.json().catch(() => ({})); throw new Error(e.message || tr.status); }
+
+    loadingEl.style.display = 'none';
+    successEl.style.display = 'block';
+    successEl.innerHTML =
+      `✓ ${loadHoldings().length}개 종목이 GitHub에 저장됐습니다.<br>` +
+      `배당 데이터 수집이 시작됐어요 (보통 1~2분 소요).<br>` +
+      `<a href="https://github.com/${REPO}/actions" target="_blank" ` +
+      `style="color:var(--accent)">Actions 진행 상황 보기 →</a>`;
+
+    showToast('저장 완료! 배당 데이터 수집 중...', true);
+  } catch (e) {
+    showErr(e.message);
+  }
 }
 
 function downloadJSON() {
