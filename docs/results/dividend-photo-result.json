@@ -1,0 +1,60 @@
+{
+  "status": "success",
+  "holdings": [
+    {
+      "ticker": "SCHD",
+      "name": "SCHD",
+      "market": "US",
+      "shares": 314.636764
+    },
+    {
+      "ticker": "JEPQ",
+      "name": "JEPQ",
+      "market": "US",
+      "shares": 129
+    },
+    {
+      "ticker": "ULTY",
+      "name": "ULTY",
+      "market": "US",
+      "shares": 53
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "알파벳 C",
+      "market": "US",
+      "shares": 5
+    },
+    {
+      "ticker": "CONY",
+      "name": "CONY",
+      "market": "US",
+      "shares": 35
+    },
+    {
+      "ticker": "",
+      "name": "아이온큐",
+      "market": "US",
+      "shares": 18.1772294
+    },
+    {
+      "ticker": "",
+      "name": "팔란티어",
+      "market": "US",
+      "shares": 2
+    },
+    {
+      "ticker": "SOXL",
+      "name": "SOXL",
+      "market": "US",
+      "shares": 1
+    },
+    {
+      "ticker": "",
+      "name": "아이렌",
+      "market": "US",
+      "shares": 1
+    }
+  ],
+  "timestamp": "2026-03-28T06:58:58.000Z"
+}
