@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실수령 배당금 — 배당 대시보드</title>
+  <style>
+    :root {
+      --bg: #0f1117; --card: #1a1d27; --card2: #1e2130;
+      --border: #2a2d3e; --border-focus: #34d399;
+      --accent: #4f8ef7; --green: #34d399; --yellow: #fbbf24;
+      --purple: #a78bfa; --red: #f87171; --orange: #fb923c;
+      --text: #e2e8f0; --muted: #64748b; --muted2: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 40px 16px 80px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+
+    /* Nav */
+    .nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color .15s; }
+    .back-link:hover { color: var(--text); }
+
+    /* Hero */
+    .hero { margin-bottom: 28px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .75rem; font-weight: 600; color: var(--green);
+      background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3);
+      border-radius: 20px; padding: 4px 14px; margin-bottom: 12px;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em;
+      background: linear-gradient(135deg, #e2e8f0 30%, var(--green) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 6px;
+    }
+    .hero p { font-size: .85rem; color: var(--muted); }
+
+    /* Section */
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    .section.green-border { border-color: rgba(52,211,153,.3); }
+    .section-title { font-size: .9rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+    .section-title-left { display: flex; align-items: center; gap: 8px; }
+
+    /* Token */
+    .token-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
+    .token-wrap input { flex: 1; }
+    .token-status { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--green); }
+    .token-status button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: .75rem; padding: 2px 6px; border-radius: 4px; font-family: inherit; }
+    .token-status button:hover { color: var(--text); }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: 12px; padding: 28px 20px;
+      text-align: center; cursor: pointer; transition: all .15s; color: var(--muted);
+    }
+    .drop-zone:hover, .drop-zone.dragover { border-color: var(--green); background: rgba(52,211,153,.04); color: var(--text); }
+    .drop-zone .drop-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .drop-zone .drop-text { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+    .drop-zone .drop-hint { font-size: .75rem; }
+    .drop-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+
+    .img-preview-wrap { margin-top: 12px; display: none; position: relative; }
+    .img-preview-wrap.visible { display: block; }
+    .img-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 8px; border: 1px solid var(--border); }
+    .img-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.7); border: none; color: var(--text); border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: .8rem; display: flex; align-items: center; justify-content: center; }
+    .img-remove:hover { background: rgba(248,113,113,.8); }
+
+    .analyze-btn-wrap { margin-top: 10px; display: none; gap: 8px; }
+    .analyze-btn-wrap.visible { display: flex; }
+
+    /* Loading */
+    .loading-box { display: none; flex-direction: column; align-items: center; padding: 20px; gap: 10px; color: var(--muted2); font-size: .85rem; }
+    .loading-box.visible { display: flex; }
+    .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Result preview */
+    .result-preview { display: none; margin-top: 14px; background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.25); border-radius: 10px; padding: 16px; }
+    .result-preview.visible { display: block; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: .85rem; }
+    .result-row { display: flex; flex-direction: column; gap: 3px; }
+    .result-label { font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .result-value { font-weight: 600; }
+    .result-value.amount { color: var(--green); font-size: 1.05rem; }
+
+    /* Error */
+    .error-box { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.25); border-radius: 8px; padding: 12px 16px; font-size: .82rem; color: var(--red); margin-top: 12px; display: none; }
+    .error-box.visible { display: block; }
+
+    /* Records list */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th { text-align: left; padding: 6px 10px; font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+    td { padding: 10px 10px; border-bottom: 1px solid rgba(42,45,62,.5); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.015); }
+
+    .ticker-badge { display: inline-block; font-size: .73rem; font-weight: 700; padding: 2px 7px; border-radius: 7px; background: rgba(79,142,247,.15); color: var(--accent); font-family: monospace; }
+    .ticker-badge.kr { background: rgba(167,139,250,.15); color: var(--purple); }
+    .source-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+    .source-dot.actual { background: var(--green); }
+    .text-right { text-align: right; }
+    .text-green { color: var(--green); font-weight: 700; }
+    .text-muted { color: var(--muted); }
+
+    .empty-state { text-align: center; padding: 32px; color: var(--muted); }
+    .empty-state .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+    .empty-state p { font-size: .85rem; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: .85rem; font-weight: 600; transition: all .15s; font-family: inherit; }
+    .btn-primary { background: var(--green); color: #0f1117; }
+    .btn-primary:hover { background: #2ec47f; }
+    .btn-secondary { background: rgba(255,255,255,.06); color: var(--muted2); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: rgba(255,255,255,.1); color: var(--text); }
+    .btn-ghost { background: none; color: var(--muted2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: .78rem; }
+    .btn-icon { background: none; border: none; cursor: pointer; padding: 3px 6px; border-radius: 6px; font-size: .85rem; color: var(--muted); transition: background .15s; }
+    .btn-icon:hover { background: rgba(255,255,255,.06); color: var(--text); }
+    .btn-icon.del:hover { background: rgba(248,113,113,.12); color: var(--red); }
+
+    input[type="text"], input[type="number"], input[type="password"], input[type="date"] {
+      background: var(--card2); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; font-size: .875rem; color: var(--text); outline: none;
+      transition: border-color .15s; width: 100%; font-family: inherit;
+    }
+    input:focus { border-color: var(--border-focus); }
+    input::placeholder { color: var(--muted); }
+    .hint { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+
+    /* Summary */
+    .summary-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .stat-label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+    .stat-value { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 22px; font-size: .85rem; color: var(--text); box-shadow: 0 8px 32px rgba(0,0,0,.5); transition: transform .25s ease; z-index: 999; white-space: nowrap; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(52,211,153,.4); color: var(--green); }
+
+    @media (max-width: 540px) {
+      .summary-strip { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="nav">
+    <a class="back-link" href="./index.html">← 대시보드로</a>
+    <a class="back-link" href="./manage.html" style="color:var(--purple)">⚙️ 종목 관리</a>
+  </div>
+
+  <div class="hero">
+    <div class="hero-badge">💰 실수령 배당금</div>
+    <h1>배당 수령 기록</h1>
+    <p>배당금 입금 화면을 찍어 올리면 AI가 금액을 자동 추출해 기록합니다.</p>
+  </div>
+
+  <!-- 요약 -->
+  <div class="summary-strip" id="summaryStrip" style="display:none">
+    <div class="stat-card">
+      <div class="stat-label">총 수령 건수</div>
+      <div class="stat-value" id="statCount">0건</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">올해 실수령 합계</div>
+      <div class="stat-value" id="statYtd">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">전체 누적</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+  </div>
+
+  <!-- 사진 업로드 -->
+  <div class="section green-border">
+    <div class="section-title">
+      <div class="section-title-left">📷 배당 영수증 사진 업로드</div>
+      <span style="font-size:.75rem;color:var(--muted);font-weight:400">Claude AI 자동 추출</span>
+    </div>
+
+    <!-- GitHub Token -->
+    <div id="ghTokenInputArea">
+      <div style="margin-bottom:6px">
+        <label style="font-size:.75rem;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em">GitHub Personal Access Token</label>
+      </div>
+      <div class="token-wrap">
+        <input type="password" id="inputGhToken" placeholder="ghp_..." autocomplete="off" />
+        <button class="btn btn-secondary btn-sm" onclick="saveGhToken()">저장</button>
+      </div>
+      <div class="hint">repo 권한 필요 · manage.html에서 저장했다면 자동 로드됩니다</div>
+    </div>
+    <div id="ghTokenSetArea" style="display:none;margin-bottom:14px">
+      <div class="token-status">
+        <span>✓ GitHub 토큰 설정됨</span>
+        <button onclick="clearGhToken()">변경</button>
+      </div>
+    </div>
+
+    <div style="height:10px"></div>
+
+    <div class="drop-zone" id="dropZone"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)"
+         ondrop="onDrop(event)" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-icon">🧾</div>
+      <div class="drop-text">배당 입금 알림 또는 배당금 내역 화면을 올려주세요</div>
+      <div class="drop-hint">증권사·은행 앱 캡처 지원 · 드래그앤드롭 또는 클릭</div>
+      <div class="drop-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('fileInput').click()">🖼 파일 선택</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cameraInput').click()">📷 카메라</button>
+      </div>
+    </div>
+
+    <input type="file" id="fileInput"   accept="image/*"                   style="display:none" onchange="onFileSelected(this)" />
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="onFileSelected(this)" />
+
+    <div class="img-preview-wrap" id="imgPreviewWrap">
+      <img id="imgPreview" class="img-preview" src="" alt="미리보기" />
+      <button class="img-remove" onclick="clearImage()">✕</button>
+    </div>
+
+    <div class="analyze-btn-wrap" id="analyzeBtnWrap">
+      <button class="btn btn-primary" onclick="analyzeReceipt()">✨ AI로 자동 추출</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearImage()">취소</button>
+    </div>
+
+    <div class="loading-box" id="loadingBox">
+      <div class="spinner"></div>
+      <span id="loadingText">업로드 중...</span>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- 추출 결과 미리보기 -->
+    <div class="result-preview" id="resultPreview">
+      <div style="font-size:.85rem;font-weight:700;margin-bottom:12px;color:var(--green)">✓ 추출 완료 — 확인 후 저장되었습니다</div>
+      <div class="result-grid" id="resultGrid"></div>
+    </div>
+  </div>
+
+  <!-- 기록 목록 -->
+  <div class="section">
+    <div class="section-title">
+      <div class="section-title-left">
+        수령 기록
+        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;background:rgba(52,211,153,.15);color:var(--green);border-radius:11px;font-size:.72rem;font-weight:700" id="countBadge">0</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="refreshRecords()">↻ 새로고침</button>
+    </div>
+    <div id="recordsList"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS_GH_KEY = 'gh_token';
+const REPO              = 'cosmoeye/Automation';
+const WORKFLOW_FILE     = 'dividend-receipt-extract.yml';
+const IMAGE_REPO_PATH   = 'docs/uploads/dividend-receipts';
+const RESULT_REPO_PATH  = 'docs/results/dividend-receipt-result.json';
+const ACTUAL_REPO_PATH  = 'docs/dividend-tracker/actual-dividends.json';
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function gh(t) { return { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github+json' }; }
+function fmtKRW(v) { return v != null ? Math.round(v).toLocaleString('ko-KR') + '원' : '—'; }
+
+// ── Token ──────────────────────────────────────────────────────────────────
+function getGhToken() { return localStorage.getItem(LS_GH_KEY) || ''; }
+
+function initTokenUI() {
+  if (getGhToken()) {
+    document.getElementById('ghTokenInputArea').style.display = 'none';
+    document.getElementById('ghTokenSetArea').style.display = 'block';
+  } else {
+    document.getElementById('ghTokenInputArea').style.display = 'block';
+    document.getElementById('ghTokenSetArea').style.display = 'none';
+  }
+}
+
+async function saveGhToken() {
+  const val = document.getElementById('inputGhToken').value.trim();
+  if (!val) return;
+  const btn = document.querySelector('#ghTokenInputArea .btn-secondary');
+  btn.textContent = '검증 중...'; btn.disabled = true;
+  try {
+    const r = await fetch('https://api.github.com/user', { headers: gh(val) });
+    if (!r.ok) { showToast('토큰 검증 실패: ' + r.status, false); return; }
+  } catch(e) { showToast('오류: ' + e.message, false); return; }
+  finally { btn.textContent = '저장'; btn.disabled = false; }
+  localStorage.setItem(LS_GH_KEY, val);
+  initTokenUI();
+  showToast('GitHub 토큰 저장됨', true);
+}
+
+function clearGhToken() {
+  localStorage.removeItem(LS_GH_KEY);
+  document.getElementById('inputGhToken').value = '';
+  initTokenUI();
+}
+
+// ── Image ──────────────────────────────────────────────────────────────────
+let imgBase64 = null, imgType = null, imgFilename = null;
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('dragover'); }
+function onDragLeave()  { document.getElementById('dropZone').classList.remove('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadFile(f);
+}
+function onFileSelected(input) { if (input.files[0]) loadFile(input.files[0]); input.value = ''; }
+
+function loadFile(file) {
+  clearResults();
+  hideError();
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1280;
+      let [w, h] = [img.width, img.height];
+      if (w > MAX || h > MAX) { const r = Math.min(MAX/w, MAX/h); w = Math.round(w*r); h = Math.round(h*r); }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const resized = cv.toDataURL('image/jpeg', 0.85);
+      imgBase64 = resized.split(',')[1];
+      imgType = 'image/jpeg';
+      // Filename: timestamp for uniqueness
+      imgFilename = `${new Date().toISOString().slice(0,10)}_${Date.now()}.jpeg`;
+      showPreview(resized);
+    };
+    img.src = dataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPreview(dataUrl) {
+  document.getElementById('imgPreview').src = dataUrl;
+  document.getElementById('imgPreviewWrap').classList.add('visible');
+  document.getElementById('analyzeBtnWrap').classList.add('visible');
+  document.getElementById('dropZone').style.display = 'none';
+}
+
+function clearImage() {
+  imgBase64 = imgType = imgFilename = null;
+  document.getElementById('imgPreviewWrap').classList.remove('visible');
+  document.getElementById('analyzeBtnWrap').classList.remove('visible');
+  document.getElementById('dropZone').style.display = '';
+  clearResults(); hideError();
+}
+
+// ── Analyze ────────────────────────────────────────────────────────────────
+async function analyzeReceipt() {
+  const token = getGhToken();
+  if (!token) { showToast('GitHub 토큰을 먼저 저장해주세요', false); return; }
+  if (!imgBase64) { showToast('이미지를 먼저 선택해주세요', false); return; }
+
+  setLoading(true, '이미지 업로드 중...');
+  clearResults(); hideError();
+
+  const filePath = `${IMAGE_REPO_PATH}/${imgFilename}`;
+
+  // 1. Upload image
+  try {
+    const body = { message: `💰 Upload dividend receipt ${imgFilename} [skip ci]`, content: imgBase64 };
+    const up = await fetch(`https://api.github.com/repos/${REPO}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: { ...gh(token), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!up.ok) { const e = await up.json().catch(() => ({})); throw new Error(e.message || up.status); }
+  } catch (e) { showError('업로드 실패: ' + e.message); setLoading(false); return; }
+
+  setLoading(true, '워크플로우 트리거 중...');
+
+  // 2. Trigger workflow
+  const triggerTime = new Date();
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+      { method: 'POST', headers: { ...gh(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: 'main', inputs: { image_path: filePath } }) }
+    );
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  } catch (e) { showError('워크플로우 트리거 실패: ' + e.message); setLoading(false); return; }
+
+  // 3. Poll
+  setLoading(true, 'AI가 배당 내역을 분석 중... (30~60초)');
+  await pollResult(token, triggerTime);
+}
+
+async function pollResult(token, triggerTime) {
+  const start = Date.now(), TIMEOUT = 5 * 60 * 1000;
+  await sleep(5000);
+  let runId = null;
+
+  while (Date.now() - start < TIMEOUT) {
+    const elapsed = Math.round((Date.now() - start) / 1000);
+
+    if (!runId) {
+      try {
+        const r = await fetch(
+          `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=10&event=workflow_dispatch`,
+          { headers: gh(token) }
+        );
+        if (r.ok) {
+          const runs = (await r.json()).workflow_runs || [];
+          const match = runs.find(run => new Date(run.created_at) >= triggerTime);
+          if (match) runId = match.id;
+        }
+      } catch {}
+      if (!runId) {
+        setLoading(true, 'AI가 배당 내역을 분석 중...', `대기 중 · ${elapsed}초`);
+        await sleep(6000); continue;
+      }
+    }
+
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/actions/runs/${runId}`, { headers: gh(token) });
+      if (r.ok) {
+        const run = await r.json();
+        if (run.status === 'completed') {
+          if (run.conclusion === 'success') {
+            setLoading(true, '결과 불러오는 중...');
+            await fetchResult(token);
+            return;
+          } else {
+            showError(`워크플로우 실패 (${run.conclusion})`);
+            setLoading(false); return;
+          }
+        }
+        setLoading(true, 'AI가 배당 내역을 분석 중...', `${run.status} · ${elapsed}초`);
+      }
+    } catch {}
+    await sleep(6000);
+  }
+  showError('시간 초과 (5분)');
+  setLoading(false);
+}
+
+async function fetchResult(token) {
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${RESULT_REPO_PATH}`,
+      { headers: gh(token) }
+    );
+    if (!r.ok) throw new Error(`결과 파일 조회 실패 (${r.status})`);
+    const file = await r.json();
+    const data = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    if (data.status !== 'success') throw new Error('추출 실패');
+    showResultPreview(data.record);
+    clearImage();
+    await sleep(1000);
+    await loadRecords(token);
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function showResultPreview(rec) {
+  const grid = document.getElementById('resultGrid');
+  const isKR = rec.currency === 'KRW';
+  grid.innerHTML = `
+    <div class="result-row">
+      <div class="result-label">종목</div>
+      <div class="result-value">${escHtml(rec.name || '')} <span style="color:var(--muted2);font-size:.8rem">${escHtml(rec.ticker || '')}</span></div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">지급일</div>
+      <div class="result-value">${rec.pay_date || '—'}</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">실수령액 (세후)</div>
+      <div class="result-value amount">${fmtKRW(rec.amount_krw)}</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">${isKR ? '세전 금액' : '원화 환산 기준'}</div>
+      <div class="result-value">${isKR ? fmtKRW(rec.gross_amount) : (rec.usdkrw_rate ? `$1 = ${rec.usdkrw_rate.toLocaleString('ko-KR')}원` : '—')}</div>
+    </div>
+    ${rec.tax_withheld ? `
+    <div class="result-row">
+      <div class="result-label">원천징수세</div>
+      <div class="result-value text-muted">${isKR ? fmtKRW(rec.tax_withheld) : `$${rec.tax_withheld}`}</div>
+    </div>` : ''}
+    ${rec.per_share ? `
+    <div class="result-row">
+      <div class="result-label">주당 배당금</div>
+      <div class="result-value text-muted">${isKR ? fmtKRW(rec.per_share) : `$${rec.per_share}`}</div>
+    </div>` : ''}
+  `;
+  document.getElementById('resultPreview').classList.add('visible');
+  showToast('배당 수령 기록 저장됨', true);
+}
+
+function clearResults() {
+  document.getElementById('resultPreview').classList.remove('visible');
+}
+
+// ── Load Records ───────────────────────────────────────────────────────────
+async function loadRecords(token) {
+  if (!token) token = getGhToken();
+  if (!token) { renderEmpty(); return; }
+
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${ACTUAL_REPO_PATH}`,
+      { headers: gh(token) }
+    );
+    if (!r.ok) { renderEmpty(); return; }
+    const file = await r.json();
+    const data = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    renderRecords(data.records || []);
+  } catch {
+    renderEmpty();
+  }
+}
+
+function renderRecords(records) {
+  const el = document.getElementById('recordsList');
+  document.getElementById('countBadge').textContent = records.length;
+
+  if (!records.length) { renderEmpty(); return; }
+
+  // Summary
+  const now = new Date();
+  const ytdStart = `${now.getFullYear()}-01-01`;
+  const ytdTotal = records.filter(r => r.pay_date >= ytdStart).reduce((s, r) => s + (r.amount_krw || 0), 0);
+  const grandTotal = records.reduce((s, r) => s + (r.amount_krw || 0), 0);
+
+  document.getElementById('statCount').textContent = `${records.length}건`;
+  document.getElementById('statYtd').textContent = fmtKRW(ytdTotal);
+  document.getElementById('statTotal').textContent = fmtKRW(grandTotal);
+  document.getElementById('summaryStrip').style.display = 'grid';
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>지급일</th>
+            <th>종목</th>
+            <th>통화</th>
+            <th class="text-right">실수령액</th>
+            <th class="text-right">원화</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records.map(r => `
+            <tr>
+              <td style="color:var(--muted2)">${r.pay_date || '—'}</td>
+              <td>
+                <span class="ticker-badge ${r.market === 'KR' ? 'kr' : ''}">${escHtml(r.ticker || '?')}</span>
+                <span style="font-size:.78rem;color:var(--muted2);margin-left:4px">${escHtml(r.name || '')}</span>
+              </td>
+              <td style="font-size:.78rem">${r.currency || '—'}</td>
+              <td class="text-right text-muted">
+                ${r.net_amount != null ? (r.currency === 'KRW' ? fmtKRW(r.net_amount) : `$${r.net_amount.toFixed(2)}`) : '—'}
+              </td>
+              <td class="text-right text-green">${fmtKRW(r.amount_krw)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderEmpty() {
+  document.getElementById('recordsList').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">💸</div>
+      <p>아직 수령 기록이 없습니다.<br>배당 입금 알림 화면을 사진으로 올려보세요.</p>
+    </div>`;
+}
+
+async function refreshRecords() {
+  showToast('새로고침 중...', true);
+  await loadRecords();
+}
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function setLoading(on, msg, sub) {
+  document.getElementById('loadingBox').className = 'loading-box' + (on ? ' visible' : '');
+  document.getElementById('analyzeBtnWrap').style.opacity = on ? '0.4' : '1';
+  document.getElementById('analyzeBtnWrap').style.pointerEvents = on ? 'none' : '';
+  if (on && msg) {
+    document.getElementById('loadingText').innerHTML =
+      msg + (sub ? `<br><small style="color:var(--muted)">${sub}</small>` : '');
+  }
+}
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = '✗ ' + msg;
+  el.className = 'error-box visible';
+}
+function hideError() { document.getElementById('errorBox').className = 'error-box'; }
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function showToast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = (ok ? '✓ ' : '✗ ') + msg;
+  el.className = 'toast show' + (ok ? ' success' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+initTokenUI();
+loadRecords();
+</script>
+</body>
+</html>

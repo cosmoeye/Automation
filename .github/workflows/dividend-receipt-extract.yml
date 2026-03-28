@@ -1,0 +1,194 @@
+name: 배당 수령액 추출
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: '영수증 이미지 경로 (repo 내)'
+        required: true
+        default: 'docs/uploads/dividend-receipts/latest.jpg'
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic yfinance
+
+      - name: Extract dividend receipt
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - <<'PYEOF'
+          import anthropic
+          import base64
+          import json
+          import uuid
+          import os
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          image_path = "${{ inputs.image_path }}"
+
+          if not os.path.exists(image_path):
+              print(f"Error: image not found at {image_path}", file=sys.stderr)
+              sys.exit(1)
+
+          ext = image_path.lower().split('.')[-1]
+          mime_map = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'webp': 'image/webp'}
+          media_type = mime_map.get(ext, 'image/jpeg')
+
+          with open(image_path, 'rb') as f:
+              image_data = base64.standard_b64encode(f.read()).decode('utf-8')
+
+          client = anthropic.Anthropic()
+
+          message = client.messages.create(
+              model="claude-haiku-4-5-20251001",
+              max_tokens=1024,
+              messages=[{
+                  "role": "user",
+                  "content": [
+                      {
+                          "type": "image",
+                          "source": {"type": "base64", "media_type": media_type, "data": image_data},
+                      },
+                      {
+                          "type": "text",
+                          "text": (
+                              "이 이미지는 증권사 앱 또는 은행 앱의 배당금 수령 내역 화면입니다.\n\n"
+                              "아래 JSON 형식으로만 응답하세요. JSON 외 텍스트나 코드블록 금지.\n\n"
+                              "{\n"
+                              '  "ticker": "티커심볼 (한국: 종목코드.KS, 미국: 영문심볼, 모르면 빈문자열)",\n'
+                              '  "name": "종목명",\n'
+                              '  "market": "KR 또는 US",\n'
+                              '  "pay_date": "YYYY-MM-DD (배당금 지급일/입금일)",\n'
+                              '  "currency": "KRW 또는 USD",\n'
+                              '  "gross_amount": 세전금액(숫자),\n'
+                              '  "tax_withheld": 원천징수세액(숫자, 없으면 0),\n'
+                              '  "net_amount": 실수령액(숫자),\n'
+                              '  "per_share": 주당배당금(숫자, 없으면 null),\n'
+                              '  "shares": 보유주수(숫자, 없으면 null)\n'
+                              "}\n\n"
+                              "규칙:\n"
+                              "- 한국 주식 예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS'\n"
+                              "- net_amount는 반드시 실제로 입금된 금액 (세후)\n"
+                              "- 금액에서 쉼표/통화기호 제거 후 숫자만"
+                          )
+                      }
+                  ],
+              }],
+          )
+
+          raw = message.content[0].text.strip()
+          if raw.startswith("```"):
+              raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+          extracted = json.loads(raw)
+
+          # USD 배당이면 KRW 환산
+          amount_krw = None
+          if extracted.get("currency") == "KRW":
+              amount_krw = round(extracted.get("net_amount", 0))
+          elif extracted.get("currency") == "USD":
+              try:
+                  import yfinance as yf
+                  hist = yf.Ticker("USDKRW=X").history(period="5d")
+                  rate = float(hist["Close"].iloc[-1]) if not hist.empty else 1320.0
+              except Exception:
+                  rate = 1320.0
+              amount_krw = round(extracted.get("net_amount", 0) * rate)
+              extracted["usdkrw_rate"] = round(rate, 2)
+
+          # 고유 ID 생성 (날짜_티커)
+          pay_date = extracted.get("pay_date", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+          ticker = extracted.get("ticker", "UNKNOWN")
+          record_id = f"{pay_date}_{ticker}"
+
+          record = {
+              "id": record_id,
+              "ticker": ticker,
+              "name": extracted.get("name", ""),
+              "market": extracted.get("market", ""),
+              "pay_date": pay_date,
+              "currency": extracted.get("currency", ""),
+              "gross_amount": extracted.get("gross_amount"),
+              "tax_withheld": extracted.get("tax_withheld", 0),
+              "net_amount": extracted.get("net_amount"),
+              "amount_krw": amount_krw,
+              "per_share": extracted.get("per_share"),
+              "shares": extracted.get("shares"),
+              "source_image": image_path,
+              "extracted_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+          }
+          if "usdkrw_rate" in extracted:
+              record["usdkrw_rate"] = extracted["usdkrw_rate"]
+
+          # actual-dividends.json 로드 후 추가/갱신
+          actual_file = Path("docs/dividend-tracker/actual-dividends.json")
+          if actual_file.exists():
+              with open(actual_file, "r", encoding="utf-8") as f:
+                  data = json.load(f)
+          else:
+              data = {"records": []}
+
+          records = data.get("records", [])
+
+          # 동일 ID가 있으면 덮어쓰기
+          idx = next((i for i, r in enumerate(records) if r.get("id") == record_id), None)
+          if idx is not None:
+              records[idx] = record
+              print(f"Updated existing record: {record_id}")
+          else:
+              records.append(record)
+              print(f"Added new record: {record_id}")
+
+          # 날짜 내림차순 정렬
+          records.sort(key=lambda r: r.get("pay_date", ""), reverse=True)
+          data["records"] = records
+
+          with open(actual_file, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+
+          # 결과 요약
+          print(f"\n✅ 추출 완료")
+          print(f"   종목: {record['name']} ({record['ticker']})")
+          print(f"   지급일: {record['pay_date']}")
+          print(f"   실수령: {record['net_amount']} {record['currency']}")
+          if amount_krw:
+              print(f"   원화: {amount_krw:,}원")
+
+          # result.json 저장 (manage 페이지 폴링용)
+          result_out = {
+              "status": "success",
+              "record": record,
+              "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+          }
+          os.makedirs("docs/results", exist_ok=True)
+          with open("docs/results/dividend-receipt-result.json", "w", encoding="utf-8") as f:
+              json.dump(result_out, f, ensure_ascii=False, indent=2)
+          PYEOF
+
+      - name: Commit results
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dividend-tracker/actual-dividends.json docs/results/dividend-receipt-result.json
+          git commit -m "💰 Add dividend receipt: ${{ inputs.image_path }} [skip ci]" || echo "No changes"
+          git push
