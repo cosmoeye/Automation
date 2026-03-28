@@ -457,14 +457,11 @@ function renderError() {
 }
 
 function buildMonthlyChartData(monthlySummary) {
-  const today = new Date();
   const months = [];
-  // 12 months back + current + 11 months ahead = 24
-  for (let i = -12; i <= 11; i++) {
-    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = `${d.getFullYear() === today.getFullYear() ? '' : d.getFullYear() % 100 + '/'}${d.getMonth() + 1}월`;
-    const bucket = monthlySummary[key] || { actual_krw: 0, projected_krw: 0 };
+  for (let m = 1; m <= 12; m++) {
+    const key = `2026-${String(m).padStart(2, '0')}`;
+    const label = `${m}월`;
+    const bucket = monthlySummary[key] || { actual_krw: 0, projected_krw: 0, confirmed_krw: 0 };
     months.push({ key, label, ...bucket });
   }
   return months;
@@ -739,7 +736,7 @@ function renderAll(data) {
     <div class="section">
       <div class="section-title">
         월별 배당 실수령액 추이
-        <span class="badge">24개월</span>
+        <span class="badge">2026년</span>
       </div>
       <div class="chart-wrap">
         <canvas id="monthlyChart"></canvas>

@@ -60,7 +60,7 @@ jobs:
           client = anthropic.Anthropic()
 
           message = client.messages.create(
-              model="claude-haiku-4-5-20251001",
+              model="claude-sonnet-4-6",
               max_tokens=1024,
               messages=[{
                   "role": "user",
@@ -72,24 +72,27 @@ jobs:
                       {
                           "type": "text",
                           "text": (
-                              "이 이미지는 증권사 앱 또는 은행 앱의 배당금 수령 내역 화면입니다.\n\n"
-                              "아래 JSON 형식으로만 응답하세요. JSON 외 텍스트나 코드블록 금지.\n\n"
+                              "이 이미지는 증권사 앱 또는 은행 앱의 배당금 수령 내역 화면입니다. 한국어 텍스트가 포함될 수 있습니다.\n\n"
+                              "이미지에서 배당금 관련 정보를 정확히 읽어서 아래 JSON 형식으로만 응답하세요.\n"
+                              "JSON 외 텍스트나 마크다운 코드블록(```)은 절대 포함하지 마세요.\n\n"
                               "{\n"
                               '  "ticker": "티커심볼 (한국: 종목코드.KS, 미국: 영문심볼, 모르면 빈문자열)",\n'
-                              '  "name": "종목명",\n'
+                              '  "name": "종목명 (이미지에서 읽은 그대로)",\n'
                               '  "market": "KR 또는 US",\n'
-                              '  "pay_date": "YYYY-MM-DD (배당금 지급일/입금일)",\n'
+                              '  "pay_date": "YYYY-MM-DD (배당금 지급일 또는 입금일)",\n'
                               '  "currency": "KRW 또는 USD",\n'
-                              '  "gross_amount": 세전금액(숫자),\n'
+                              '  "gross_amount": 세전배당금(숫자, 없으면 null),\n'
                               '  "tax_withheld": 원천징수세액(숫자, 없으면 0),\n'
-                              '  "net_amount": 실수령액(숫자),\n'
+                              '  "net_amount": 실수령액(숫자, 세후 실제 입금액),\n'
                               '  "per_share": 주당배당금(숫자, 없으면 null),\n'
                               '  "shares": 보유주수(숫자, 없으면 null)\n'
                               "}\n\n"
                               "규칙:\n"
-                              "- 한국 주식 예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS'\n"
-                              "- net_amount는 반드시 실제로 입금된 금액 (세후)\n"
-                              "- 금액에서 쉼표/통화기호 제거 후 숫자만"
+                              "- 한국 주식 ticker 예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS', 카카오→'035720.KS'\n"
+                              "- 미국 주식 ticker: 이미지에 표시된 영문 심볼 그대로 (예: SCHD, JEPQ, PLTR)\n"
+                              "- net_amount는 반드시 실제로 입금된 금액 (세후). 이미지에서 '실수령금', '입금액', 'Net Amount' 등을 찾으세요\n"
+                              "- 모든 금액에서 쉼표·통화기호(원, $, ₩) 제거 후 숫자만\n"
+                              "- 날짜는 이미지에서 읽은 날짜를 YYYY-MM-DD 형식으로 변환"
                           )
                       }
                   ],

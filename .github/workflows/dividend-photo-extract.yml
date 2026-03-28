@@ -58,8 +58,8 @@ jobs:
           client = anthropic.Anthropic()
 
           message = client.messages.create(
-              model="claude-haiku-4-5-20251001",
-              max_tokens=1024,
+              model="claude-sonnet-4-6",
+              max_tokens=2048,
               messages=[{
                   "role": "user",
                   "content": [
@@ -74,17 +74,18 @@ jobs:
                       {
                           "type": "text",
                           "text": (
-                              "이 이미지는 주식 계좌 또는 포트폴리오 화면입니다.\n\n"
-                              "모든 보유 종목을 찾아서 아래 JSON 형식으로만 응답하세요. "
-                              "JSON 외의 텍스트나 마크다운 코드블록은 절대 포함하지 마세요.\n\n"
+                              "이 이미지는 증권사 앱의 주식 계좌 또는 포트폴리오 화면입니다. 한국어 텍스트가 포함될 수 있습니다.\n\n"
+                              "이미지에서 보이는 모든 보유 종목을 빠짐없이 찾아서 아래 JSON 형식으로만 응답하세요.\n"
+                              "JSON 외의 텍스트나 마크다운 코드블록(```)은 절대 포함하지 마세요.\n\n"
                               '{"holdings": [\n'
-                              '  {"ticker": "티커심볼", "name": "종목명", "market": "US" 또는 "KR", "shares": 보유수량숫자}\n'
+                              '  {"ticker": "티커심볼", "name": "종목명", "market": "US 또는 KR", "shares": 보유수량숫자}\n'
                               ']}\n\n'
                               "규칙:\n"
-                              "- 한국 주식: ticker는 반드시 '종목코드.KS' 형식 (예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS')\n"
-                              "- 미국 주식: ticker는 영문 심볼 (예: 'AAPL', 'MSFT', 'SCHD', 'JEPI')\n"
-                              "- shares는 숫자만 (쉼표 제거, 소수점 가능)\n"
-                              "- 티커 코드를 특정할 수 없으면 ticker는 빈 문자열\n"
+                              "- 한국 주식: ticker는 반드시 '종목코드.KS' 형식\n"
+                              "  (예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS', 카카오→'035720.KS', LG에너지솔루션→'373220.KS')\n"
+                              "- 미국 주식: ticker는 영문 심볼 그대로 (예: 'AAPL', 'MSFT', 'SCHD', 'JEPQ', 'PLTR')\n"
+                              "- shares는 숫자만 (쉼표·통화기호 제거, 소수점 가능)\n"
+                              "- 한국어 종목명으로 ticker를 특정할 수 없으면 ticker는 빈 문자열\n"
                               "- 종목이 없으면 {\"holdings\": []} 반환"
                           )
                       }
