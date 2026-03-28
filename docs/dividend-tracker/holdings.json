@@ -1,0 +1,39 @@
+{
+  "holdings": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "market": "US",
+      "shares": 10
+    },
+    {
+      "ticker": "SCHD",
+      "name": "Schwab US Dividend ETF",
+      "market": "US",
+      "shares": 20
+    },
+    {
+      "ticker": "JEPI",
+      "name": "JPMorgan Equity Premium Income ETF",
+      "market": "US",
+      "shares": 15
+    },
+    {
+      "ticker": "005930.KS",
+      "name": "삼성전자",
+      "market": "KR",
+      "shares": 50
+    }
+  ],
+  "_comment": {
+    "market": "US 또는 KR",
+    "ticker_format": {
+      "US": "예: AAPL, MSFT, SCHD",
+      "KR": "예: 005930.KS, 000660.KS (종목코드.KS 형식)"
+    },
+    "tax_rates": {
+      "US": "15% (한-미 조세조약)",
+      "KR": "15.4% (배당소득세 14% + 지방소득세 1.4%)"
+    }
+  }
+}

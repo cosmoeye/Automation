@@ -114,16 +114,18 @@
       border-radius: inherit;
     }
 
-    .tool-card.blue::before  { background: radial-gradient(ellipse at top left, rgba(79,142,247,0.08) 0%, transparent 70%); }
-    .tool-card.green::before { background: radial-gradient(ellipse at top left, rgba(52,211,153,0.08) 0%, transparent 70%); }
+    .tool-card.blue::before   { background: radial-gradient(ellipse at top left, rgba(79,142,247,0.08) 0%, transparent 70%); }
+    .tool-card.green::before  { background: radial-gradient(ellipse at top left, rgba(52,211,153,0.08) 0%, transparent 70%); }
+    .tool-card.purple::before { background: radial-gradient(ellipse at top left, rgba(167,139,250,0.08) 0%, transparent 70%); }
 
     .tool-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
-    .tool-card.blue:hover  { border-color: rgba(79,142,247,0.5); }
-    .tool-card.green:hover { border-color: rgba(52,211,153,0.5); }
+    .tool-card.blue:hover   { border-color: rgba(79,142,247,0.5); }
+    .tool-card.green:hover  { border-color: rgba(52,211,153,0.5); }
+    .tool-card.purple:hover { border-color: rgba(167,139,250,0.5); }
 
     .tool-card:hover::before { opacity: 1; }
 
@@ -163,6 +165,7 @@
 
     .tag-blue   { background: rgba(79,142,247,0.15);  color: var(--accent); }
     .tag-green  { background: rgba(52,211,153,0.15);  color: var(--green); }
+    .tag-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
 
     .tool-arrow {
       color: var(--muted);
@@ -174,8 +177,9 @@
       transform: translateX(4px);
     }
 
-    .tool-card.blue:hover  .tool-arrow { color: var(--accent); }
-    .tool-card.green:hover .tool-arrow { color: var(--green); }
+    .tool-card.blue:hover   .tool-arrow { color: var(--accent); }
+    .tool-card.green:hover  .tool-arrow { color: var(--green); }
+    .tool-card.purple:hover .tool-arrow { color: var(--purple); }
 
     /* ── Coming Soon placeholder ── */
     .tool-card.coming-soon {
@@ -240,6 +244,17 @@
       <div class="tool-desc">연장·야간·휴일 수당 및 4대보험 공제를 반영한 실수령액을 계산합니다. (2026 기준)</div>
       <div class="tool-footer">
         <span class="tool-tag tag-green">2026 세율</span>
+        <span class="tool-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Dividend Tracker -->
+    <a class="tool-card purple" href="./dividend-tracker/">
+      <div class="tool-icon">📈</div>
+      <div class="tool-name">배당 대시보드</div>
+      <div class="tool-desc">보유 주식의 배당금 실수령액 추이, 종목별 비중, 월별 배당 캘린더를 한눈에 확인합니다. (미국·한국)</div>
+      <div class="tool-footer">
+        <span class="tool-tag tag-purple">Yahoo Finance · Actions</span>
         <span class="tool-arrow">→</span>
       </div>
     </a>

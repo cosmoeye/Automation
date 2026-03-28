@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>종목 관리 — 배당 대시보드</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --card2: #1e2130;
+      --border: #2a2d3e;
+      --border-focus: #4f8ef7;
+      --accent: #4f8ef7;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --red: #f87171;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --muted2: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 16px 80px;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero { margin-bottom: 28px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--purple);
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e2e8f0 30%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .hero p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Section ── */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      background: rgba(167,139,250,0.15);
+      color: var(--purple);
+      border-radius: 11px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    /* ── Holdings Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th {
+      text-align: left;
+      padding: 6px 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(42,45,62,0.5);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.015); }
+
+    .ticker-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .ticker-badge.kr {
+      background: rgba(167,139,250,0.15);
+      color: var(--purple);
+    }
+    .market-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .market-us { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .market-kr { background: rgba(167,139,250,0.15); color: var(--purple); }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+      color: var(--muted);
+    }
+    .btn-icon:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .btn-icon.delete:hover { background: rgba(248,113,113,0.12); color: var(--red); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+    }
+    .empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .empty-state p { font-size: 0.85rem; }
+
+    /* ── Add/Edit Form ── */
+    .form-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .form-section.editing { border-color: rgba(79,142,247,0.4); }
+    .form-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--text);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.875rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+      font-family: inherit;
+    }
+    input:focus, select:focus { border-color: var(--border-focus); }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--card2); }
+
+    .market-radio-group { display: flex; gap: 8px; }
+    .market-radio { flex: 1; position: relative; }
+    .market-radio input { position: absolute; opacity: 0; width: 0; }
+    .market-radio label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted2);
+      transition: all 0.15s;
+    }
+    .market-radio input:checked + label { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.1); }
+    .market-radio input:checked + label.kr-label { border-color: var(--purple); color: var(--purple); background: rgba(167,139,250,0.1); }
+
+    .hint { font-size: 0.72rem; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+    .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #3a7de6; }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: var(--muted2); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-ghost { background: none; color: var(--muted2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .btn-add { background: rgba(167,139,250,0.15); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
+    .btn-add:hover { background: rgba(167,139,250,0.25); }
+    .btn-export { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+    .btn-export:hover { background: rgba(52,211,153,0.25); }
+    .btn-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+    .btn-yellow:hover { background: rgba(251,191,36,0.25); }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+
+    /* ── Export section ── */
+    .export-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .json-preview {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--green);
+      line-height: 1.6;
+      max-height: 220px;
+      overflow-y: auto;
+      white-space: pre;
+      display: none;
+    }
+    .json-preview.visible { display: block; }
+    .info-box {
+      background: rgba(79,142,247,0.06);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.8rem;
+      color: var(--muted2);
+      line-height: 1.7;
+    }
+    .info-box code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--green);
+      background: rgba(52,211,153,0.1);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* ── Photo Import ── */
+    .photo-section { border-color: rgba(251,191,36,0.25); }
+
+    .token-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .token-wrap input { flex: 1; }
+    .token-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--green);
+      padding: 4px 0;
+    }
+    .token-status button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .token-status button:hover { color: var(--text); }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--muted);
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--yellow);
+      background: rgba(251,191,36,0.04);
+      color: var(--text);
+    }
+    .drop-zone .drop-icon { font-size: 2.4rem; margin-bottom: 8px; }
+    .drop-zone .drop-text { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .drop-zone .drop-hint { font-size: 0.75rem; }
+    .drop-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .img-preview-wrap {
+      margin-top: 14px;
+      display: none;
+      position: relative;
+    }
+    .img-preview-wrap.visible { display: block; }
+    .img-preview {
+      width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .img-preview-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      border: none;
+      color: var(--text);
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .img-preview-remove:hover { background: rgba(248,113,113,0.8); }
+
+    .analyze-btn-wrap {
+      margin-top: 12px;
+      display: none;
+    }
+    .analyze-btn-wrap.visible { display: flex; gap: 8px; }
+
+    .loading-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      gap: 10px;
+      color: var(--muted2);
+      font-size: 0.85rem;
+    }
+    .loading-box.visible { display: flex; }
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .photo-results {
+      display: none;
+      margin-top: 16px;
+    }
+    .photo-results.visible { display: block; }
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .results-header .found-count { color: var(--green); }
+    .results-table input[type="number"] {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.82rem;
+      color: var(--text);
+      width: 80px;
+      text-align: right;
+      outline: none;
+    }
+    .results-table input[type="number"]:focus { border-color: var(--accent); }
+    .results-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .results-table td { padding: 8px 10px; }
+    .results-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .select-all-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted2);
+      cursor: pointer;
+    }
+    .select-all-label input { cursor: pointer; accent-color: var(--accent); }
+
+    .error-box {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--red);
+      margin-top: 12px;
+      display: none;
+    }
+    .error-box.visible { display: block; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-size: 0.85rem;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: transform 0.25s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(52,211,153,0.4); color: var(--green); }
+
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .export-row { flex-direction: column; }
+      .drop-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="nav">
+    <a class="back-link" href="./index.html">← 대시보드로</a>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-yellow btn-sm" onclick="document.getElementById('photoSection').scrollIntoView({behavior:'smooth'})">📷 사진 입력</button>
+      <button class="btn btn-add" onclick="showForm()">+ 종목 추가</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-badge">⚙️ 종목 관리</div>
+    <h1>보유 종목 입력</h1>
+    <p>배당 추적할 종목을 추가하고 <code>holdings.json</code>으로 내보내세요.</p>
+  </div>
+
+  <!-- ── 사진으로 자동 입력 ── -->
+  <div class="section photo-section" id="photoSection">
+    <div class="section-title">
+      <div class="section-title-left">📷 사진으로 자동 입력</div>
+      <span style="font-size:0.75rem;color:var(--muted);font-weight:400">Claude AI로 인식</span>
+    </div>
+
+    <!-- GitHub Token -->
+    <div id="ghTokenInputArea">
+      <div style="margin-bottom:6px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:0.04em">
+          GitHub Personal Access Token
+        </label>
+      </div>
+      <div class="token-wrap">
+        <input type="password" id="inputGhToken" placeholder="ghp_..." autocomplete="off" />
+        <button class="btn btn-secondary btn-sm" onclick="saveGhToken()">저장</button>
+      </div>
+      <div class="hint">
+        repo 권한 필요 ·
+        <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" style="color:var(--accent)">토큰 발급 →</a>
+        · 로컬스토리지에 저장 (pay-calc와 공유)
+      </div>
+    </div>
+
+    <div id="ghTokenSetArea" style="display:none">
+      <div class="token-status">
+        <span>✓ GitHub 토큰 설정됨</span>
+        <button onclick="clearGhToken()">변경</button>
+      </div>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <!-- Drop zone -->
+    <div class="drop-zone" id="dropZone"
+         ondragover="onDragOver(event)"
+         ondragleave="onDragLeave(event)"
+         ondrop="onDrop(event)"
+         onclick="document.getElementById('fileInput').click()">
+      <div class="drop-icon">📱</div>
+      <div class="drop-text">포트폴리오 화면을 여기에 끌어다 놓거나 클릭하세요</div>
+      <div class="drop-hint">키움증권, 미래에셋, 삼성증권, 나무증권, Robinhood, Fidelity 등 앱 캡처 지원</div>
+      <div class="drop-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-yellow btn-sm" onclick="document.getElementById('fileInput').click()">
+          🖼 사진 선택
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cameraInput').click()">
+          📷 카메라로 찍기
+        </button>
+      </div>
+    </div>
+
+    <input type="file" id="fileInput"   accept="image/*"                   style="display:none" onchange="onFileSelected(this)" />
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="onFileSelected(this)" />
+
+    <!-- Image preview -->
+    <div class="img-preview-wrap" id="imgPreviewWrap">
+      <img id="imgPreview" class="img-preview" src="" alt="미리보기" />
+      <button class="img-preview-remove" onclick="clearImage()" title="제거">✕</button>
+    </div>
+
+    <!-- Analyze button -->
+    <div class="analyze-btn-wrap" id="analyzeBtnWrap">
+      <button class="btn btn-yellow" onclick="analyzeImage()">✨ AI로 종목 인식하기</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearImage()">취소</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-box" id="loadingBox">
+      <div class="spinner"></div>
+      <span>이미지 분석 중... Claude가 종목을 읽고 있어요</span>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- Results -->
+    <div class="photo-results" id="photoResults">
+      <div class="results-header">
+        <span class="found-count" id="foundCount"></span>
+        <button class="btn btn-ghost btn-sm" onclick="clearResults()">✕ 닫기</button>
+      </div>
+      <div class="table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th>티커</th>
+              <th>종목명</th>
+              <th>시장</th>
+              <th style="text-align:right">수량</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTbody"></tbody>
+        </table>
+      </div>
+      <div class="results-footer">
+        <label class="select-all-label">
+          <input type="checkbox" id="selectAll" checked onchange="toggleSelectAll(this.checked)" />
+          전체 선택
+        </label>
+        <button class="btn btn-primary btn-sm" onclick="addSelectedResults()">선택 항목 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 보유 종목 목록 ── -->
+  <div class="section">
+    <div class="section-title">
+      <div class="section-title-left">
+        보유 종목
+        <span class="count-badge" id="countBadge">0</span>
+      </div>
+    </div>
+    <div id="holdingsList"></div>
+  </div>
+
+  <!-- ── 직접 입력 폼 ── -->
+  <div class="form-section" id="formSection" style="display:none">
+    <div class="form-title" id="formTitle">종목 추가</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="inputTicker">티커 심볼</label>
+        <input type="text" id="inputTicker" placeholder="AAPL, SCHD, 005930.KS" autocapitalize="characters" />
+        <div class="hint" id="tickerHint">한국 주식: 종목코드 + .KS (예: 005930.KS)</div>
+      </div>
+      <div class="form-group">
+        <label>시장</label>
+        <div class="market-radio-group">
+          <div class="market-radio">
+            <input type="radio" name="market" id="marketUS" value="US" checked />
+            <label for="marketUS">🇺🇸 미국</label>
+          </div>
+          <div class="market-radio">
+            <input type="radio" name="market" id="marketKR" value="KR" />
+            <label for="marketKR" class="kr-label">🇰🇷 한국</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputShares">보유 수량 (주)</label>
+        <input type="number" id="inputShares" placeholder="10" min="0.001" step="any" />
+      </div>
+      <div class="form-group">
+        <label for="inputName">종목명 <span style="color:var(--muted);font-weight:400">(선택)</span></label>
+        <input type="text" id="inputName" placeholder="Apple Inc." />
+        <div class="hint">비워두면 자동으로 채워집니다</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="hideForm()">취소</button>
+      <button class="btn btn-primary" onclick="saveHolding()">저장</button>
+    </div>
+  </div>
+
+  <!-- ── 내보내기 ── -->
+  <div class="section">
+    <div class="section-title">
+      <div class="section-title-left">내보내기</div>
+    </div>
+    <div class="export-row">
+      <button class="btn btn-export" onclick="downloadJSON()">⬇ holdings.json 다운로드</button>
+      <button class="btn btn-secondary" onclick="togglePreview()">{ } JSON 미리보기</button>
+      <button class="btn btn-secondary" onclick="copyJSON()">⎘ 클립보드 복사</button>
+    </div>
+    <div class="json-preview" id="jsonPreview"></div>
+    <div class="info-box" style="margin-top:14px">
+      <b>배당 데이터 업데이트 방법</b><br>
+      1. <code>holdings.json</code>을 다운로드해 저장소에 커밋하면 GitHub Actions가 자동 실행됩니다.<br>
+      2. 로컬에서 바로 실행하려면:<br>
+      &nbsp;&nbsp;<code>pip install yfinance pandas</code><br>
+      &nbsp;&nbsp;<code>python3 scripts/fetch_dividends.py</code>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS_KEY    = 'dividend-holdings-v1';
+const LS_GH_KEY = 'gh_token';  // pay-calc와 동일한 키 공유
+
+const REPO              = 'cosmoeye/Automation';
+const WORKFLOW_FILE     = 'dividend-photo-extract.yml';
+const IMAGE_REPO_PATH   = 'docs/uploads/dividend-photo-input';
+const RESULT_REPO_PATH  = 'docs/results/dividend-photo-result.json';
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function gh(token) { return { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }; }
+
+// ── Storage ────────────────────────────────────────────────────────────────
+function loadHoldings() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+  catch { return []; }
+}
+function saveHoldings(list) {
+  localStorage.setItem(LS_KEY, JSON.stringify(list));
+}
+function getGhToken() {
+  return localStorage.getItem(LS_GH_KEY) || '';
+}
+
+// ── GitHub Token UI ────────────────────────────────────────────────────────
+function initGhTokenUI() {
+  if (getGhToken()) {
+    document.getElementById('ghTokenInputArea').style.display = 'none';
+    document.getElementById('ghTokenSetArea').style.display = 'block';
+  } else {
+    document.getElementById('ghTokenInputArea').style.display = 'block';
+    document.getElementById('ghTokenSetArea').style.display = 'none';
+  }
+}
+
+async function saveGhToken() {
+  const val = document.getElementById('inputGhToken').value.trim();
+  if (!val) { showToast('토큰을 입력해주세요', false); return; }
+  const btn = document.querySelector('#ghTokenInputArea .btn-secondary');
+  btn.textContent = '검증 중...'; btn.disabled = true;
+  try {
+    const res = await fetch('https://api.github.com/user', { headers: gh(val) });
+    if (!res.ok) { showToast('토큰 검증 실패: ' + res.status, false); return; }
+  } catch (e) { showToast('오류: ' + e.message, false); return; }
+  finally { btn.textContent = '저장'; btn.disabled = false; }
+  localStorage.setItem(LS_GH_KEY, val);
+  initGhTokenUI();
+  showToast('GitHub 토큰 저장됨', true);
+}
+
+function clearGhToken() {
+  localStorage.removeItem(LS_GH_KEY);
+  document.getElementById('inputGhToken').value = '';
+  initGhTokenUI();
+}
+
+// ── Photo Import ───────────────────────────────────────────────────────────
+let selectedImageBase64 = null;
+let selectedImageType   = null;
+
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('dragover');
+}
+function onDragLeave(e) {
+  document.getElementById('dropZone').classList.remove('dragover');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImageFile(file);
+}
+function onFileSelected(input) {
+  if (input.files[0]) loadImageFile(input.files[0]);
+  input.value = '';
+}
+
+function loadImageFile(file) {
+  clearResults();
+  hideError();
+
+  // Resize if > 2MB for faster API call
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = new Image();
+    img.onload = () => {
+      const MAX_W = 1280, MAX_H = 1280;
+      let { width: w, height: h } = img;
+      if (w > MAX_W || h > MAX_H) {
+        const ratio = Math.min(MAX_W / w, MAX_H / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const resized = canvas.toDataURL('image/jpeg', 0.85);
+      selectedImageBase64 = resized.split(',')[1];
+      selectedImageType   = 'image/jpeg';
+      showImagePreview(resized);
+    };
+    img.src = dataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showImagePreview(dataUrl) {
+  document.getElementById('imgPreview').src = dataUrl;
+  document.getElementById('imgPreviewWrap').classList.add('visible');
+  document.getElementById('analyzeBtnWrap').classList.add('visible');
+  document.getElementById('dropZone').style.display = 'none';
+}
+
+function clearImage() {
+  selectedImageBase64 = null;
+  selectedImageType   = null;
+  document.getElementById('imgPreviewWrap').classList.remove('visible');
+  document.getElementById('analyzeBtnWrap').classList.remove('visible');
+  document.getElementById('dropZone').style.display = '';
+  clearResults();
+  hideError();
+}
+
+async function analyzeImage() {
+  const token = getGhToken();
+  if (!token) {
+    showToast('먼저 GitHub 토큰을 저장해주세요', false);
+    document.getElementById('ghTokenInputArea').style.display = 'block';
+    document.getElementById('ghTokenSetArea').style.display = 'none';
+    return;
+  }
+  if (!selectedImageBase64) {
+    showToast('이미지를 먼저 선택해주세요', false);
+    return;
+  }
+
+  setLoading(true, '이미지 업로드 중...');
+  clearResults();
+  hideError();
+
+  // 1. 이미지를 repo에 업로드
+  const ext = selectedImageType === 'image/png' ? 'png' : 'jpeg';
+  const filePath = `${IMAGE_REPO_PATH}.${ext}`;
+  try {
+    let sha;
+    const ex = await fetch(`https://api.github.com/repos/${REPO}/contents/${filePath}`, { headers: gh(token) });
+    if (ex.ok) sha = (await ex.json()).sha;
+    const body = { message: '📊 Upload dividend photo [skip ci]', content: selectedImageBase64 };
+    if (sha) body.sha = sha;
+    const up = await fetch(`https://api.github.com/repos/${REPO}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: { ...gh(token), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!up.ok) { const e = await up.json().catch(() => ({})); throw new Error(e.message || up.status); }
+  } catch (e) { showError('이미지 업로드 실패: ' + e.message); setLoading(false); return; }
+
+  setLoading(true, '워크플로우 트리거 중...');
+
+  // 2. 워크플로우 트리거
+  const triggerTime = new Date();
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+      { method: 'POST', headers: { ...gh(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: 'main', inputs: { image_path: filePath } }) }
+    );
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  } catch (e) { showError('워크플로우 트리거 실패: ' + e.message); setLoading(false); return; }
+
+  // 3. 결과 폴링
+  setLoading(true, 'AI가 종목을 분석 중입니다... (보통 30~60초)');
+  await pollDividendResults(token, triggerTime);
+}
+
+async function pollDividendResults(token, triggerTime) {
+  const start = Date.now();
+  const TIMEOUT = 5 * 60 * 1000;
+  await sleep(5000);
+  let runId = null;
+
+  while (Date.now() - start < TIMEOUT) {
+    const elapsed = Math.round((Date.now() - start) / 1000);
+
+    if (!runId) {
+      try {
+        const r = await fetch(
+          `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=10&event=workflow_dispatch`,
+          { headers: gh(token) }
+        );
+        if (r.ok) {
+          const runs = (await r.json()).workflow_runs || [];
+          const match = runs.find(run => new Date(run.created_at) >= triggerTime);
+          if (match) runId = match.id;
+        }
+      } catch {}
+      if (!runId) {
+        setLoading(true, 'AI가 종목을 분석 중입니다...', `워크플로우 대기 중 · ${elapsed}초`);
+        await sleep(6000);
+        continue;
+      }
+    }
+
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/actions/runs/${runId}`, { headers: gh(token) });
+      if (r.ok) {
+        const run = await r.json();
+        if (run.status === 'completed') {
+          if (run.conclusion === 'success') {
+            setLoading(true, '결과를 불러오는 중...');
+            await fetchAndApplyDividendResult(token);
+            return;
+          } else {
+            showError(`워크플로우 실패 (${run.conclusion}). GitHub Actions 로그를 확인해주세요.`);
+            setLoading(false);
+            return;
+          }
+        }
+        setLoading(true, 'AI가 종목을 분석 중입니다...', `상태: ${run.status} · ${elapsed}초`);
+      }
+    } catch {}
+
+    await sleep(6000);
+  }
+  showError('시간 초과: 5분이 지나도 완료되지 않았습니다.');
+  setLoading(false);
+}
+
+async function fetchAndApplyDividendResult(token) {
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${RESULT_REPO_PATH}`,
+      { headers: gh(token) }
+    );
+    if (!r.ok) throw new Error(`결과 파일 조회 실패 (${r.status})`);
+    const file = await r.json();
+    const data = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    if (data.status !== 'success') throw new Error('분석 실패: ' + JSON.stringify(data));
+
+    const holdings = data.holdings || [];
+    if (holdings.length === 0) {
+      showError('이미지에서 종목을 찾지 못했습니다. 포트폴리오 화면이 명확하게 보이는 이미지를 사용해주세요.');
+      setLoading(false);
+      return;
+    }
+
+    showResults(holdings);
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+function setLoading(on, msg, sub) {
+  document.getElementById('loadingBox').className = 'loading-box' + (on ? ' visible' : '');
+  document.getElementById('analyzeBtnWrap').style.opacity = on ? '0.4' : '1';
+  document.getElementById('analyzeBtnWrap').style.pointerEvents = on ? 'none' : '';
+  if (on && msg) {
+    document.getElementById('loadingBox').innerHTML =
+      `<div class="spinner"></div><span>${msg}${sub ? '<br><small style="color:var(--muted)">' + sub + '</small>' : ''}</span>`;
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = '✗ ' + msg;
+  el.className = 'error-box visible';
+}
+function hideError() {
+  document.getElementById('errorBox').className = 'error-box';
+}
+
+function showResults(items) {
+  const existing = loadHoldings().map(h => h.ticker);
+  const tbody = document.getElementById('resultsTbody');
+
+  tbody.innerHTML = items.map((item, i) => {
+    const isDup = item.ticker && existing.includes(item.ticker.toUpperCase());
+    const isKR  = item.market === 'KR';
+    const ticker = (item.ticker || '').toUpperCase();
+    return `
+      <tr id="result-row-${i}" ${isDup ? 'style="opacity:0.5"' : ''}>
+        <td><input type="checkbox" ${isDup ? '' : 'checked'} id="result-check-${i}" /></td>
+        <td>
+          <input type="text" value="${escHtml(ticker)}" id="result-ticker-${i}"
+            style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8rem;color:${isKR ? 'var(--purple)' : 'var(--accent)'};width:120px;font-family:monospace;outline:none" />
+        </td>
+        <td style="color:var(--muted2);font-size:0.82rem">${escHtml(item.name || '')}</td>
+        <td>
+          <select id="result-market-${i}" style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.78rem;color:var(--text);width:68px;outline:none">
+            <option value="US" ${!isKR ? 'selected' : ''}>🇺🇸 US</option>
+            <option value="KR" ${isKR ? 'selected' : ''}>🇰🇷 KR</option>
+          </select>
+        </td>
+        <td style="text-align:right">
+          <input type="number" value="${item.shares || ''}" id="result-shares-${i}"
+            min="0.001" step="any"
+            style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.82rem;color:var(--text);width:80px;text-align:right;outline:none" />
+        </td>
+      </tr>
+      ${isDup ? `<tr><td colspan="5" style="padding:0 10px 6px;font-size:0.72rem;color:var(--yellow)">⚠ 이미 등록된 종목 (체크 시 수량 덮어씀)</td></tr>` : ''}`;
+  }).join('');
+
+  document.getElementById('foundCount').textContent = `${items.length}개 종목 인식됨`;
+  document.getElementById('photoResults').className = 'photo-results visible';
+  document.getElementById('selectAll').checked = true;
+}
+
+function clearResults() {
+  document.getElementById('photoResults').className = 'photo-results';
+  document.getElementById('resultsTbody').innerHTML = '';
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('[id^="result-check-"]').forEach(cb => { cb.checked = checked; });
+}
+
+function addSelectedResults() {
+  const rows = document.querySelectorAll('[id^="result-check-"]');
+  let added = 0, skipped = 0;
+  const list = loadHoldings();
+
+  rows.forEach((cb, i) => {
+    if (!cb.checked) return;
+    const ticker = document.getElementById(`result-ticker-${i}`)?.value.trim().toUpperCase();
+    const name   = document.querySelector(`#result-row-${i} td:nth-child(3)`)?.textContent.trim() || '';
+    const market = document.getElementById(`result-market-${i}`)?.value || 'US';
+    const shares = parseFloat(document.getElementById(`result-shares-${i}`)?.value || '0');
+
+    if (!ticker || shares <= 0) { skipped++; return; }
+
+    const idx = list.findIndex(h => h.ticker === ticker);
+    if (idx >= 0) {
+      list[idx].shares = shares;  // Update existing
+    } else {
+      list.push({ ticker, name, market, shares });
+    }
+    added++;
+  });
+
+  if (added === 0) {
+    showToast('추가할 항목이 없습니다', false);
+    return;
+  }
+
+  saveHoldings(list);
+  render();
+  updatePreview();
+  clearResults();
+  clearImage();
+  showToast(`${added}개 종목 추가됨${skipped > 0 ? ` (${skipped}개 건너뜀)` : ''}`, true);
+}
+
+// ── Render list ────────────────────────────────────────────────────────────
+function render() {
+  const list = loadHoldings();
+  const el = document.getElementById('holdingsList');
+  document.getElementById('countBadge').textContent = list.length;
+
+  if (list.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>아직 종목이 없습니다. 사진 입력 또는 "+ 종목 추가"로 추가해보세요.</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>티커</th>
+            <th>종목명</th>
+            <th>시장</th>
+            <th style="text-align:right">보유수량</th>
+            <th style="text-align:center">수정</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map((h, i) => `
+            <tr>
+              <td><span class="ticker-badge ${h.market === 'KR' ? 'kr' : ''}">${escHtml(h.ticker)}</span></td>
+              <td style="color:var(--muted2)">${escHtml(h.name || '—')}</td>
+              <td><span class="market-badge ${h.market === 'KR' ? 'market-kr' : 'market-us'}">${h.market}</span></td>
+              <td style="text-align:right;font-weight:600">${Number(h.shares).toLocaleString('ko-KR')}</td>
+              <td style="text-align:center;white-space:nowrap">
+                <button class="btn-icon" onclick="editHolding(${i})" title="수정">✏️</button>
+                <button class="btn-icon delete" onclick="deleteHolding(${i})" title="삭제">🗑️</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Form ───────────────────────────────────────────────────────────────────
+let editingIndex = -1;
+
+function showForm(idx = -1) {
+  editingIndex = idx;
+  const formEl = document.getElementById('formSection');
+  const titleEl = document.getElementById('formTitle');
+
+  if (idx >= 0) {
+    const h = loadHoldings()[idx];
+    document.getElementById('inputTicker').value = h.ticker;
+    document.getElementById('inputShares').value = h.shares;
+    document.getElementById('inputName').value = h.name || '';
+    document.querySelector(`input[name="market"][value="${h.market}"]`).checked = true;
+    titleEl.textContent = `종목 수정 — ${h.ticker}`;
+    formEl.classList.add('editing');
+  } else {
+    document.getElementById('inputTicker').value = '';
+    document.getElementById('inputShares').value = '';
+    document.getElementById('inputName').value = '';
+    document.getElementById('marketUS').checked = true;
+    titleEl.textContent = '종목 추가';
+    formEl.classList.remove('editing');
+  }
+
+  formEl.style.display = 'block';
+  formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('inputTicker').focus();
+}
+
+function hideForm() {
+  editingIndex = -1;
+  document.getElementById('formSection').style.display = 'none';
+}
+
+function saveHolding() {
+  const ticker = document.getElementById('inputTicker').value.trim().toUpperCase();
+  const shares = parseFloat(document.getElementById('inputShares').value);
+  const name   = document.getElementById('inputName').value.trim();
+  const market = document.querySelector('input[name="market"]:checked').value;
+
+  if (!ticker) { showToast('티커 심볼을 입력해주세요', false); return; }
+  if (!shares || shares <= 0) { showToast('보유 수량을 올바르게 입력해주세요', false); return; }
+
+  const list = loadHoldings();
+  const dupIdx = list.findIndex((h, i) => h.ticker === ticker && i !== editingIndex);
+  if (dupIdx >= 0) { showToast(`${ticker}는 이미 등록된 종목입니다`, false); return; }
+
+  const entry = { ticker, name, market, shares };
+  if (editingIndex >= 0) {
+    list[editingIndex] = entry;
+    showToast(`${ticker} 수정 완료`, true);
+  } else {
+    list.push(entry);
+    showToast(`${ticker} 추가 완료`, true);
+  }
+
+  saveHoldings(list);
+  hideForm();
+  render();
+  updatePreview();
+}
+
+function editHolding(idx) { showForm(idx); }
+
+function deleteHolding(idx) {
+  const list = loadHoldings();
+  const ticker = list[idx].ticker;
+  if (!confirm(`${ticker}을(를) 삭제할까요?`)) return;
+  list.splice(idx, 1);
+  saveHoldings(list);
+  render();
+  updatePreview();
+  showToast(`${ticker} 삭제됨`, true);
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────
+function buildJSON() {
+  const list = loadHoldings();
+  return JSON.stringify({
+    holdings: list.map(h => {
+      const obj = { ticker: h.ticker, market: h.market, shares: h.shares };
+      if (h.name) obj.name = h.name;
+      return obj;
+    }),
+  }, null, 2);
+}
+
+function downloadJSON() {
+  if (!loadHoldings().length) { showToast('먼저 종목을 추가해주세요', false); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([buildJSON()], { type: 'application/json' }));
+  a.download = 'holdings.json';
+  a.click();
+  showToast('holdings.json 다운로드 시작', true);
+}
+
+function copyJSON() {
+  if (!loadHoldings().length) { showToast('먼저 종목을 추가해주세요', false); return; }
+  navigator.clipboard.writeText(buildJSON())
+    .then(() => showToast('클립보드에 복사됨', true))
+    .catch(() => showToast('복사 실패', false));
+}
+
+let previewVisible = false;
+function togglePreview() {
+  const el = document.getElementById('jsonPreview');
+  previewVisible = !previewVisible;
+  if (previewVisible) { updatePreview(); el.classList.add('visible'); }
+  else el.classList.remove('visible');
+}
+function updatePreview() {
+  if (previewVisible) document.getElementById('jsonPreview').textContent = buildJSON();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = (ok ? '✓ ' : '✗ ') + msg;
+  el.className = 'toast show' + (ok ? ' success' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+// ── Keyboard ───────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') hideForm();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveHolding();
+});
+
+document.querySelectorAll('input[name="market"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const hint = document.getElementById('tickerHint');
+    hint.textContent = r.value === 'KR' && r.checked
+      ? '한국 주식: 종목코드 + .KS (예: 005930.KS → 삼성전자)'
+      : '미국 주식: 티커 심볼 그대로 (예: AAPL, SCHD, JEPI)';
+  });
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+initGhTokenUI();
+render();
+</script>
+</body>
+</html>

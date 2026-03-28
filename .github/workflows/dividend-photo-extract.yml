@@ -1,0 +1,119 @@
+name: 배당 포트폴리오 이미지 분석
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: '분석할 이미지 경로 (repo 내)'
+        required: true
+        default: 'docs/uploads/dividend-photo-input.png'
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install anthropic
+        run: pip install anthropic
+
+      - name: Extract holdings
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - <<'PYEOF'
+          import anthropic
+          import base64
+          import json
+          import sys
+          import os
+          from datetime import datetime, timezone
+
+          image_path = "${{ inputs.image_path }}"
+
+          if not os.path.exists(image_path):
+              print(f"Error: image not found at {image_path}", file=sys.stderr)
+              sys.exit(1)
+
+          ext = image_path.lower().split('.')[-1]
+          mime_map = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'webp': 'image/webp'}
+          media_type = mime_map.get(ext, 'image/jpeg')
+
+          with open(image_path, 'rb') as f:
+              image_data = base64.standard_b64encode(f.read()).decode('utf-8')
+
+          client = anthropic.Anthropic()
+
+          message = client.messages.create(
+              model="claude-haiku-4-5-20251001",
+              max_tokens=1024,
+              messages=[{
+                  "role": "user",
+                  "content": [
+                      {
+                          "type": "image",
+                          "source": {
+                              "type": "base64",
+                              "media_type": media_type,
+                              "data": image_data,
+                          },
+                      },
+                      {
+                          "type": "text",
+                          "text": (
+                              "이 이미지는 주식 계좌 또는 포트폴리오 화면입니다.\n\n"
+                              "모든 보유 종목을 찾아서 아래 JSON 형식으로만 응답하세요. "
+                              "JSON 외의 텍스트나 마크다운 코드블록은 절대 포함하지 마세요.\n\n"
+                              '{"holdings": [\n'
+                              '  {"ticker": "티커심볼", "name": "종목명", "market": "US" 또는 "KR", "shares": 보유수량숫자}\n'
+                              ']}\n\n'
+                              "규칙:\n"
+                              "- 한국 주식: ticker는 반드시 '종목코드.KS' 형식 (예: 삼성전자→'005930.KS', SK하이닉스→'000660.KS', NAVER→'035420.KS')\n"
+                              "- 미국 주식: ticker는 영문 심볼 (예: 'AAPL', 'MSFT', 'SCHD', 'JEPI')\n"
+                              "- shares는 숫자만 (쉼표 제거, 소수점 가능)\n"
+                              "- 티커 코드를 특정할 수 없으면 ticker는 빈 문자열\n"
+                              "- 종목이 없으면 {\"holdings\": []} 반환"
+                          )
+                      }
+                  ],
+              }],
+          )
+
+          raw = message.content[0].text.strip()
+          if raw.startswith("```"):
+              raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+          parsed = json.loads(raw)
+          result = {
+              "status": "success",
+              "holdings": parsed.get("holdings", []),
+              "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+          }
+
+          os.makedirs("docs/results", exist_ok=True)
+          with open("docs/results/dividend-photo-result.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print("Extracted:", json.dumps(result, ensure_ascii=False, indent=2))
+          PYEOF
+
+      - name: Commit results
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/results/dividend-photo-result.json
+          git commit -m "📊 Update dividend photo result [skip ci]" || echo "No changes to commit"
+          git push
