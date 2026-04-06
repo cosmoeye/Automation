@@ -1,13 +1,13 @@
 {
-  "updated": "2026-03-30T01:37:33",
+  "updated": "2026-04-06T01:37:33",
   "exchange_rate": {
-    "USDKRW": 1512.08
+    "USDKRW": 1509.48
   },
   "summary": {
-    "ytd_total_krw": 711595,
+    "ytd_total_krw": 1002136,
     "ytd_confirmed_krw": 0,
-    "expected_annual_krw": 2469980,
-    "this_month_krw": 348799,
+    "expected_annual_krw": 2574510,
+    "this_month_krw": 134705,
     "total_tickers": 9,
     "total_actual_records": 0
   },
@@ -24,103 +24,102 @@
         {
           "date": "2023-06-21",
           "per_share": 0.221667,
-          "after_tax_krw": 89640,
+          "after_tax_krw": 89486,
           "source": "yahoo"
         },
         {
           "date": "2023-09-20",
           "per_share": 0.218333,
-          "after_tax_krw": 88292,
+          "after_tax_krw": 88140,
           "source": "yahoo"
         },
         {
           "date": "2023-12-06",
           "per_share": 0.247333,
-          "after_tax_krw": 100020,
+          "after_tax_krw": 99848,
           "source": "yahoo"
         },
         {
           "date": "2024-03-20",
           "per_share": 0.203667,
-          "after_tax_krw": 82361,
+          "after_tax_krw": 82220,
           "source": "yahoo"
         },
         {
           "date": "2024-06-26",
           "per_share": 0.274667,
-          "after_tax_krw": 111073,
+          "after_tax_krw": 110882,
           "source": "yahoo"
         },
         {
           "date": "2024-09-25",
           "per_share": 0.251667,
-          "after_tax_krw": 101772,
+          "after_tax_krw": 101597,
           "source": "yahoo"
         },
         {
           "date": "2024-12-11",
           "per_share": 0.265,
-          "after_tax_krw": 107164,
+          "after_tax_krw": 106980,
           "source": "yahoo"
         },
         {
           "date": "2025-03-26",
           "per_share": 0.249,
-          "after_tax_krw": 100694,
+          "after_tax_krw": 100521,
           "source": "yahoo"
         },
         {
           "date": "2025-06-25",
           "per_share": 0.26,
-          "after_tax_krw": 105142,
+          "after_tax_krw": 104961,
           "source": "yahoo"
         },
         {
           "date": "2025-09-24",
           "per_share": 0.26,
-          "after_tax_krw": 105142,
+          "after_tax_krw": 104961,
           "source": "yahoo"
         },
         {
           "date": "2025-12-10",
           "per_share": 0.278,
-          "after_tax_krw": 112421,
+          "after_tax_krw": 112228,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-03-25",
+          "per_share": 0.257,
+          "after_tax_krw": 103750,
           "source": "yahoo"
         }
       ],
       "dividends_projected": [
         {
-          "date": "2026-03-11",
-          "per_share": 0.26175,
-          "after_tax_krw": 105850,
+          "date": "2026-06-24",
+          "per_share": 0.26375,
+          "after_tax_krw": 106475,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-06-10",
-          "per_share": 0.26175,
-          "after_tax_krw": 105850,
+          "date": "2026-09-23",
+          "per_share": 0.26375,
+          "after_tax_krw": 106475,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-09-09",
-          "per_share": 0.26175,
-          "after_tax_krw": 105850,
+          "date": "2026-12-23",
+          "per_share": 0.26375,
+          "after_tax_krw": 106475,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-12-09",
-          "per_share": 0.26175,
-          "after_tax_krw": 105850,
-          "projected": true,
-          "source": "yahoo_based"
-        },
-        {
-          "date": "2027-03-10",
-          "per_share": 0.26175,
-          "after_tax_krw": 105850,
+          "date": "2027-03-24",
+          "per_share": 0.26375,
+          "after_tax_krw": 106475,
           "projected": true,
           "source": "yahoo_based"
         }
@@ -136,311 +135,311 @@
       "accuracy_pct": null,
       "dividends_history": [
         {
-          "date": "2023-04-03",
-          "per_share": 0.454,
-          "after_tax_krw": 75273,
-          "source": "yahoo"
-        },
-        {
           "date": "2023-05-01",
           "per_share": 0.484,
-          "after_tax_krw": 80247,
+          "after_tax_krw": 80109,
           "source": "yahoo"
         },
         {
           "date": "2023-06-01",
           "per_share": 0.357,
-          "after_tax_krw": 59190,
+          "after_tax_krw": 59089,
           "source": "yahoo"
         },
         {
           "date": "2023-07-03",
           "per_share": 0.367,
-          "after_tax_krw": 60848,
+          "after_tax_krw": 60744,
           "source": "yahoo"
         },
         {
           "date": "2023-08-01",
           "per_share": 0.366,
-          "after_tax_krw": 60683,
+          "after_tax_krw": 60578,
           "source": "yahoo"
         },
         {
           "date": "2023-09-01",
           "per_share": 0.451,
-          "after_tax_krw": 74776,
+          "after_tax_krw": 74647,
           "source": "yahoo"
         },
         {
           "date": "2023-10-02",
           "per_share": 0.417,
-          "after_tax_krw": 69138,
+          "after_tax_krw": 69020,
           "source": "yahoo"
         },
         {
           "date": "2023-11-01",
           "per_share": 0.418,
-          "after_tax_krw": 69304,
+          "after_tax_krw": 69185,
           "source": "yahoo"
         },
         {
           "date": "2023-12-01",
           "per_share": 0.422,
-          "after_tax_krw": 69967,
+          "after_tax_krw": 69847,
           "source": "yahoo"
         },
         {
           "date": "2023-12-28",
           "per_share": 0.392,
-          "after_tax_krw": 64993,
+          "after_tax_krw": 64882,
           "source": "yahoo"
         },
         {
           "date": "2024-02-01",
           "per_share": 0.342,
-          "after_tax_krw": 56703,
+          "after_tax_krw": 56606,
           "source": "yahoo"
         },
         {
           "date": "2024-03-01",
           "per_share": 0.38,
-          "after_tax_krw": 63004,
+          "after_tax_krw": 62896,
           "source": "yahoo"
         },
         {
           "date": "2024-04-01",
           "per_share": 0.427,
-          "after_tax_krw": 70796,
+          "after_tax_krw": 70675,
           "source": "yahoo"
         },
         {
           "date": "2024-05-01",
           "per_share": 0.431,
-          "after_tax_krw": 71460,
+          "after_tax_krw": 71337,
           "source": "yahoo"
         },
         {
           "date": "2024-06-03",
           "per_share": 0.45,
-          "after_tax_krw": 74610,
+          "after_tax_krw": 74482,
           "source": "yahoo"
         },
         {
           "date": "2024-07-01",
           "per_share": 0.421,
-          "after_tax_krw": 69802,
+          "after_tax_krw": 69682,
           "source": "yahoo"
         },
         {
           "date": "2024-08-01",
           "per_share": 0.427,
-          "after_tax_krw": 70796,
+          "after_tax_krw": 70675,
           "source": "yahoo"
         },
         {
           "date": "2024-09-03",
           "per_share": 0.557,
-          "after_tax_krw": 92350,
+          "after_tax_krw": 92192,
           "source": "yahoo"
         },
         {
           "date": "2024-10-01",
           "per_share": 0.551,
-          "after_tax_krw": 91356,
+          "after_tax_krw": 91198,
           "source": "yahoo"
         },
         {
           "date": "2024-11-01",
           "per_share": 0.494,
-          "after_tax_krw": 81905,
+          "after_tax_krw": 81764,
           "source": "yahoo"
         },
         {
           "date": "2024-12-02",
           "per_share": 0.508,
-          "after_tax_krw": 84226,
+          "after_tax_krw": 84081,
           "source": "yahoo"
         },
         {
           "date": "2024-12-31",
           "per_share": 0.456,
-          "after_tax_krw": 75605,
+          "after_tax_krw": 75475,
           "source": "yahoo"
         },
         {
           "date": "2025-02-03",
           "per_share": 0.45,
-          "after_tax_krw": 74610,
+          "after_tax_krw": 74482,
           "source": "yahoo"
         },
         {
           "date": "2025-03-03",
           "per_share": 0.482,
-          "after_tax_krw": 79915,
+          "after_tax_krw": 79778,
           "source": "yahoo"
         },
         {
           "date": "2025-04-01",
           "per_share": 0.541,
-          "after_tax_krw": 89698,
+          "after_tax_krw": 89543,
           "source": "yahoo"
         },
         {
           "date": "2025-05-01",
           "per_share": 0.598,
-          "after_tax_krw": 99148,
+          "after_tax_krw": 98978,
           "source": "yahoo"
         },
         {
           "date": "2025-06-02",
           "per_share": 0.621,
-          "after_tax_krw": 102962,
+          "after_tax_krw": 102784,
           "source": "yahoo"
         },
         {
           "date": "2025-07-01",
           "per_share": 0.494,
-          "after_tax_krw": 81905,
+          "after_tax_krw": 81764,
           "source": "yahoo"
         },
         {
           "date": "2025-08-01",
           "per_share": 0.444,
-          "after_tax_krw": 73615,
+          "after_tax_krw": 73488,
           "source": "yahoo"
         },
         {
           "date": "2025-09-02",
           "per_share": 0.442,
-          "after_tax_krw": 73283,
+          "after_tax_krw": 73157,
           "source": "yahoo"
         },
         {
           "date": "2025-10-01",
           "per_share": 0.446,
-          "after_tax_krw": 73947,
+          "after_tax_krw": 73819,
           "source": "yahoo"
         },
         {
           "date": "2025-11-03",
           "per_share": 0.476,
-          "after_tax_krw": 78921,
+          "after_tax_krw": 78785,
           "source": "yahoo"
         },
         {
           "date": "2025-12-01",
           "per_share": 0.553,
-          "after_tax_krw": 91687,
+          "after_tax_krw": 91530,
           "source": "yahoo"
         },
         {
           "date": "2025-12-31",
           "per_share": 0.576,
-          "after_tax_krw": 95501,
+          "after_tax_krw": 95336,
           "source": "yahoo"
         },
         {
           "date": "2026-02-02",
           "per_share": 0.466,
-          "after_tax_krw": 77263,
+          "after_tax_krw": 77130,
           "source": "yahoo"
         },
         {
           "date": "2026-03-02",
           "per_share": 0.509,
-          "after_tax_krw": 84392,
+          "after_tax_krw": 84247,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-04-01",
+          "per_share": 0.559,
+          "after_tax_krw": 92523,
           "source": "yahoo"
         }
       ],
       "dividends_projected": [
         {
-          "date": "2026-04-01",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
-          "projected": true,
-          "source": "yahoo_based"
-        },
-        {
           "date": "2026-05-01",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-05-31",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-06-30",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-07-30",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-08-29",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-09-28",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-10-28",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-11-27",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-12-27",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2027-01-26",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2027-02-25",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2027-03-27",
-          "per_share": 0.526,
-          "after_tax_krw": 87211,
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
+          "projected": true,
+          "source": "yahoo_based"
+        },
+        {
+          "date": "2027-04-26",
+          "per_share": 0.5275,
+          "after_tax_krw": 87309,
           "projected": true,
           "source": "yahoo_based"
         }
@@ -458,495 +457,507 @@
         {
           "date": "2024-03-14",
           "per_share": 10.65,
-          "after_tax_krw": 725470,
+          "after_tax_krw": 724222,
           "source": "yahoo"
         },
         {
           "date": "2024-04-17",
           "per_share": 14.17,
-          "after_tax_krw": 965249,
+          "after_tax_krw": 963589,
           "source": "yahoo"
         },
         {
           "date": "2024-05-15",
           "per_share": 12.78,
-          "after_tax_krw": 870563,
+          "after_tax_krw": 869066,
           "source": "yahoo"
         },
         {
           "date": "2024-06-14",
           "per_share": 11.34,
-          "after_tax_krw": 772472,
+          "after_tax_krw": 771144,
           "source": "yahoo"
         },
         {
           "date": "2024-07-17",
           "per_share": 9.95,
-          "after_tax_krw": 677786,
+          "after_tax_krw": 676621,
           "source": "yahoo"
         },
         {
           "date": "2024-08-15",
           "per_share": 7.8,
-          "after_tax_krw": 531330,
+          "after_tax_krw": 530416,
           "source": "yahoo"
         },
         {
           "date": "2024-09-19",
           "per_share": 9.83,
-          "after_tax_krw": 669612,
+          "after_tax_krw": 668460,
           "source": "yahoo"
         },
         {
           "date": "2024-10-17",
           "per_share": 8.27,
-          "after_tax_krw": 563346,
+          "after_tax_krw": 562377,
           "source": "yahoo"
         },
         {
           "date": "2024-11-14",
           "per_share": 8.31,
-          "after_tax_krw": 566071,
+          "after_tax_krw": 565097,
           "source": "yahoo"
         },
         {
           "date": "2024-12-12",
           "per_share": 7.09,
-          "after_tax_krw": 482965,
+          "after_tax_krw": 482135,
           "source": "yahoo"
         },
         {
           "date": "2025-01-08",
           "per_share": 5.72,
-          "after_tax_krw": 389642,
+          "after_tax_krw": 388972,
           "source": "yahoo"
         },
         {
           "date": "2025-02-06",
           "per_share": 5.37,
-          "after_tax_krw": 365800,
+          "after_tax_krw": 365171,
           "source": "yahoo"
         },
         {
           "date": "2025-03-06",
           "per_share": 4.65,
-          "after_tax_krw": 316754,
+          "after_tax_krw": 316210,
           "source": "yahoo"
         },
         {
           "date": "2025-03-13",
           "per_share": 1.03,
-          "after_tax_krw": 70163,
+          "after_tax_krw": 70042,
           "source": "yahoo"
         },
         {
           "date": "2025-03-20",
           "per_share": 0.98,
-          "after_tax_krw": 66757,
+          "after_tax_krw": 66642,
           "source": "yahoo"
         },
         {
           "date": "2025-03-27",
           "per_share": 0.99,
-          "after_tax_krw": 67438,
+          "after_tax_krw": 67322,
           "source": "yahoo"
         },
         {
           "date": "2025-04-03",
           "per_share": 0.92,
-          "after_tax_krw": 62670,
+          "after_tax_krw": 62562,
           "source": "yahoo"
         },
         {
           "date": "2025-04-10",
           "per_share": 0.82,
-          "after_tax_krw": 55858,
+          "after_tax_krw": 55762,
           "source": "yahoo"
         },
         {
           "date": "2025-04-17",
           "per_share": 0.85,
-          "after_tax_krw": 57901,
+          "after_tax_krw": 57802,
           "source": "yahoo"
         },
         {
           "date": "2025-04-24",
           "per_share": 0.84,
-          "after_tax_krw": 57220,
+          "after_tax_krw": 57122,
           "source": "yahoo"
         },
         {
           "date": "2025-05-01",
           "per_share": 0.94,
-          "after_tax_krw": 64032,
+          "after_tax_krw": 63922,
           "source": "yahoo"
         },
         {
           "date": "2025-05-08",
           "per_share": 1.18,
-          "after_tax_krw": 80381,
+          "after_tax_krw": 80242,
           "source": "yahoo"
         },
         {
           "date": "2025-05-15",
           "per_share": 1.06,
-          "after_tax_krw": 72206,
+          "after_tax_krw": 72082,
           "source": "yahoo"
         },
         {
           "date": "2025-05-22",
           "per_share": 0.98,
-          "after_tax_krw": 66757,
+          "after_tax_krw": 66642,
           "source": "yahoo"
         },
         {
           "date": "2025-05-29",
           "per_share": 0.95,
-          "after_tax_krw": 64713,
+          "after_tax_krw": 64602,
           "source": "yahoo"
         },
         {
           "date": "2025-06-05",
           "per_share": 0.95,
-          "after_tax_krw": 64713,
+          "after_tax_krw": 64602,
           "source": "yahoo"
         },
         {
           "date": "2025-06-12",
           "per_share": 0.95,
-          "after_tax_krw": 64713,
+          "after_tax_krw": 64602,
           "source": "yahoo"
         },
         {
           "date": "2025-06-20",
           "per_share": 0.88,
-          "after_tax_krw": 59945,
+          "after_tax_krw": 59842,
           "source": "yahoo"
         },
         {
           "date": "2025-06-26",
           "per_share": 0.92,
-          "after_tax_krw": 62670,
+          "after_tax_krw": 62562,
           "source": "yahoo"
         },
         {
           "date": "2025-07-03",
           "per_share": 0.95,
-          "after_tax_krw": 64713,
+          "after_tax_krw": 64602,
           "source": "yahoo"
         },
         {
           "date": "2025-07-10",
           "per_share": 0.96,
-          "after_tax_krw": 65394,
+          "after_tax_krw": 65282,
           "source": "yahoo"
         },
         {
           "date": "2025-07-17",
           "per_share": 1.04,
-          "after_tax_krw": 70844,
+          "after_tax_krw": 70722,
           "source": "yahoo"
         },
         {
           "date": "2025-07-24",
           "per_share": 1.03,
-          "after_tax_krw": 70163,
+          "after_tax_krw": 70042,
           "source": "yahoo"
         },
         {
           "date": "2025-07-31",
           "per_share": 1.01,
-          "after_tax_krw": 68800,
+          "after_tax_krw": 68682,
           "source": "yahoo"
         },
         {
           "date": "2025-08-07",
           "per_share": 1.0,
-          "after_tax_krw": 68119,
+          "after_tax_krw": 68002,
           "source": "yahoo"
         },
         {
           "date": "2025-08-14",
           "per_share": 1.01,
-          "after_tax_krw": 68800,
+          "after_tax_krw": 68682,
           "source": "yahoo"
         },
         {
           "date": "2025-08-21",
           "per_share": 1.0,
-          "after_tax_krw": 68119,
+          "after_tax_krw": 68002,
           "source": "yahoo"
         },
         {
           "date": "2025-08-28",
           "per_share": 0.95,
-          "after_tax_krw": 64713,
+          "after_tax_krw": 64602,
           "source": "yahoo"
         },
         {
           "date": "2025-09-04",
           "per_share": 0.9,
-          "after_tax_krw": 61307,
+          "after_tax_krw": 61202,
           "source": "yahoo"
         },
         {
           "date": "2025-09-11",
           "per_share": 0.93,
-          "after_tax_krw": 63351,
+          "after_tax_krw": 63242,
           "source": "yahoo"
         },
         {
           "date": "2025-09-18",
           "per_share": 0.93,
-          "after_tax_krw": 63351,
+          "after_tax_krw": 63242,
           "source": "yahoo"
         },
         {
           "date": "2025-09-25",
           "per_share": 0.92,
-          "after_tax_krw": 62670,
+          "after_tax_krw": 62562,
           "source": "yahoo"
         },
         {
           "date": "2025-10-02",
           "per_share": 0.91,
-          "after_tax_krw": 61988,
+          "after_tax_krw": 61882,
           "source": "yahoo"
         },
         {
           "date": "2025-10-09",
           "per_share": 0.9,
-          "after_tax_krw": 61307,
+          "after_tax_krw": 61202,
           "source": "yahoo"
         },
         {
           "date": "2025-10-15",
           "per_share": 0.91,
-          "after_tax_krw": 61988,
+          "after_tax_krw": 61882,
           "source": "yahoo"
         },
         {
           "date": "2025-10-22",
           "per_share": 0.9,
-          "after_tax_krw": 61307,
+          "after_tax_krw": 61202,
           "source": "yahoo"
         },
         {
           "date": "2025-10-29",
           "per_share": 0.85,
-          "after_tax_krw": 57901,
+          "after_tax_krw": 57802,
           "source": "yahoo"
         },
         {
           "date": "2025-11-05",
           "per_share": 0.79,
-          "after_tax_krw": 53814,
+          "after_tax_krw": 53722,
           "source": "yahoo"
         },
         {
           "date": "2025-11-12",
           "per_share": 0.63,
-          "after_tax_krw": 42915,
+          "after_tax_krw": 42841,
           "source": "yahoo"
         },
         {
           "date": "2025-11-19",
           "per_share": 0.64,
-          "after_tax_krw": 43596,
+          "after_tax_krw": 43521,
           "source": "yahoo"
         },
         {
           "date": "2025-11-26",
           "per_share": 0.59,
-          "after_tax_krw": 40190,
+          "after_tax_krw": 40121,
           "source": "yahoo"
         },
         {
           "date": "2025-12-03",
           "per_share": 0.588,
-          "after_tax_krw": 40054,
+          "after_tax_krw": 39985,
           "source": "yahoo"
         },
         {
           "date": "2025-12-10",
           "per_share": 0.546,
-          "after_tax_krw": 37193,
+          "after_tax_krw": 37129,
           "source": "yahoo"
         },
         {
           "date": "2025-12-17",
           "per_share": 0.492,
-          "after_tax_krw": 33515,
+          "after_tax_krw": 33457,
           "source": "yahoo"
         },
         {
           "date": "2025-12-24",
           "per_share": 0.571,
-          "after_tax_krw": 38896,
+          "after_tax_krw": 38829,
           "source": "yahoo"
         },
         {
           "date": "2025-12-31",
           "per_share": 0.487,
-          "after_tax_krw": 33174,
+          "after_tax_krw": 33117,
           "source": "yahoo"
         },
         {
           "date": "2026-01-07",
           "per_share": 0.471,
-          "after_tax_krw": 32084,
+          "after_tax_krw": 32029,
           "source": "yahoo"
         },
         {
           "date": "2026-01-14",
           "per_share": 0.519,
-          "after_tax_krw": 35354,
+          "after_tax_krw": 35293,
           "source": "yahoo"
         },
         {
           "date": "2026-01-21",
           "per_share": 0.505,
-          "after_tax_krw": 34400,
+          "after_tax_krw": 34341,
           "source": "yahoo"
         },
         {
           "date": "2026-01-28",
           "per_share": 0.502,
-          "after_tax_krw": 34196,
+          "after_tax_krw": 34137,
           "source": "yahoo"
         },
         {
           "date": "2026-02-04",
           "per_share": 0.454,
-          "after_tax_krw": 30926,
+          "after_tax_krw": 30873,
           "source": "yahoo"
         },
         {
           "date": "2026-02-11",
           "per_share": 0.451,
-          "after_tax_krw": 30722,
+          "after_tax_krw": 30669,
           "source": "yahoo"
         },
         {
           "date": "2026-02-18",
           "per_share": 0.436,
-          "after_tax_krw": 29700,
+          "after_tax_krw": 29649,
           "source": "yahoo"
         },
         {
           "date": "2026-02-25",
           "per_share": 0.475,
-          "after_tax_krw": 32357,
+          "after_tax_krw": 32301,
           "source": "yahoo"
         },
         {
           "date": "2026-03-04",
           "per_share": 0.48,
-          "after_tax_krw": 32697,
+          "after_tax_krw": 32641,
           "source": "yahoo"
         },
         {
           "date": "2026-03-11",
           "per_share": 0.416,
-          "after_tax_krw": 28338,
+          "after_tax_krw": 28289,
           "source": "yahoo"
         },
         {
           "date": "2026-03-18",
           "per_share": 0.407,
-          "after_tax_krw": 27725,
+          "after_tax_krw": 27677,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-03-25",
+          "per_share": 0.432,
+          "after_tax_krw": 29377,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-04-01",
+          "per_share": 0.372,
+          "after_tax_krw": 25297,
           "source": "yahoo"
         }
       ],
       "dividends_projected": [
         {
-          "date": "2026-04-17",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-05-01",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-05-17",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-05-31",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-06-16",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-06-30",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-07-16",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-07-30",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-08-15",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-08-29",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-09-14",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-09-28",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-10-14",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-10-28",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-11-13",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-11-27",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-12-13",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2026-12-27",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-01-12",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2027-01-26",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-02-11",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2027-02-25",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-03-13",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2027-03-27",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-04-12",
-          "per_share": 0.4445,
-          "after_tax_krw": 30279,
+          "date": "2027-04-26",
+          "per_share": 0.40675,
+          "after_tax_krw": 27660,
           "projected": true,
           "source": "yahoo_based"
         }
@@ -964,49 +975,49 @@
         {
           "date": "2024-06-10",
           "per_share": 0.2,
-          "after_tax_krw": 1285,
+          "after_tax_krw": 1283,
           "source": "yahoo"
         },
         {
           "date": "2024-09-09",
           "per_share": 0.2,
-          "after_tax_krw": 1285,
+          "after_tax_krw": 1283,
           "source": "yahoo"
         },
         {
           "date": "2024-12-09",
           "per_share": 0.2,
-          "after_tax_krw": 1285,
+          "after_tax_krw": 1283,
           "source": "yahoo"
         },
         {
           "date": "2025-03-10",
           "per_share": 0.2,
-          "after_tax_krw": 1285,
+          "after_tax_krw": 1283,
           "source": "yahoo"
         },
         {
           "date": "2025-06-09",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "source": "yahoo"
         },
         {
           "date": "2025-09-08",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "source": "yahoo"
         },
         {
           "date": "2025-12-08",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "source": "yahoo"
         },
         {
           "date": "2026-03-09",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "source": "yahoo"
         }
       ],
@@ -1014,28 +1025,28 @@
         {
           "date": "2026-06-08",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-09-07",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2026-12-07",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "projected": true,
           "source": "yahoo_based"
         },
         {
           "date": "2027-03-08",
           "per_share": 0.21,
-          "after_tax_krw": 1350,
+          "after_tax_krw": 1347,
           "projected": true,
           "source": "yahoo_based"
         }
@@ -1053,381 +1064,393 @@
         {
           "date": "2023-10-06",
           "per_share": 12.09,
-          "after_tax_krw": 543861,
+          "after_tax_krw": 542926,
           "source": "yahoo"
         },
         {
           "date": "2023-11-08",
           "per_share": 10.78,
-          "after_tax_krw": 484932,
+          "after_tax_krw": 484098,
           "source": "yahoo"
         },
         {
           "date": "2023-12-07",
           "per_share": 24.62,
-          "after_tax_krw": 1107515,
+          "after_tax_krw": 1105611,
           "source": "yahoo"
         },
         {
           "date": "2024-01-05",
           "per_share": 26.93,
-          "after_tax_krw": 1211429,
+          "after_tax_krw": 1209346,
           "source": "yahoo"
         },
         {
           "date": "2024-02-07",
           "per_share": 10.75,
-          "after_tax_krw": 483582,
+          "after_tax_krw": 482751,
           "source": "yahoo"
         },
         {
           "date": "2024-03-06",
           "per_share": 16.62,
-          "after_tax_krw": 747640,
+          "after_tax_krw": 746355,
           "source": "yahoo"
         },
         {
           "date": "2024-04-04",
           "per_share": 27.94,
-          "after_tax_krw": 1256864,
+          "after_tax_krw": 1254702,
           "source": "yahoo"
         },
         {
           "date": "2024-05-06",
           "per_share": 22.81,
-          "after_tax_krw": 1026094,
+          "after_tax_krw": 1024329,
           "source": "yahoo"
         },
         {
           "date": "2024-06-06",
           "per_share": 16.98,
-          "after_tax_krw": 763835,
+          "after_tax_krw": 762521,
           "source": "yahoo"
         },
         {
           "date": "2024-07-05",
           "per_share": 15.73,
-          "after_tax_krw": 707604,
+          "after_tax_krw": 706388,
           "source": "yahoo"
         },
         {
           "date": "2024-08-07",
           "per_share": 10.06,
-          "after_tax_krw": 452543,
+          "after_tax_krw": 451765,
           "source": "yahoo"
         },
         {
           "date": "2024-09-06",
           "per_share": 10.43,
-          "after_tax_krw": 469187,
+          "after_tax_krw": 468380,
           "source": "yahoo"
         },
         {
           "date": "2024-10-17",
           "per_share": 11.1,
-          "after_tax_krw": 499327,
+          "after_tax_krw": 498468,
           "source": "yahoo"
         },
         {
           "date": "2024-11-14",
           "per_share": 20.23,
-          "after_tax_krw": 910034,
+          "after_tax_krw": 908469,
           "source": "yahoo"
         },
         {
           "date": "2024-12-12",
           "per_share": 13.39,
-          "after_tax_krw": 602341,
+          "after_tax_krw": 601305,
           "source": "yahoo"
         },
         {
           "date": "2025-01-08",
           "per_share": 8.34,
-          "after_tax_krw": 375170,
+          "after_tax_krw": 374525,
           "source": "yahoo"
         },
         {
           "date": "2025-02-06",
           "per_share": 10.47,
-          "after_tax_krw": 470986,
+          "after_tax_krw": 470177,
           "source": "yahoo"
         },
         {
           "date": "2025-03-06",
           "per_share": 5.99,
-          "after_tax_krw": 269456,
+          "after_tax_krw": 268993,
           "source": "yahoo"
         },
         {
           "date": "2025-04-03",
           "per_share": 4.38,
-          "after_tax_krw": 197032,
+          "after_tax_krw": 196693,
           "source": "yahoo"
         },
         {
           "date": "2025-05-01",
           "per_share": 6.51,
-          "after_tax_krw": 292848,
+          "after_tax_krw": 292345,
           "source": "yahoo"
         },
         {
           "date": "2025-05-29",
           "per_share": 7.35,
-          "after_tax_krw": 330635,
+          "after_tax_krw": 330067,
           "source": "yahoo"
         },
         {
           "date": "2025-06-26",
           "per_share": 5.35,
-          "after_tax_krw": 240666,
+          "after_tax_krw": 240253,
           "source": "yahoo"
         },
         {
           "date": "2025-07-24",
           "per_share": 7.95,
-          "after_tax_krw": 357626,
+          "after_tax_krw": 357011,
           "source": "yahoo"
         },
         {
           "date": "2025-08-21",
           "per_share": 3.44,
-          "after_tax_krw": 154746,
+          "after_tax_krw": 154480,
           "source": "yahoo"
         },
         {
           "date": "2025-09-18",
           "per_share": 4.52,
-          "after_tax_krw": 203329,
+          "after_tax_krw": 202980,
           "source": "yahoo"
         },
         {
           "date": "2025-10-16",
           "per_share": 3.46,
-          "after_tax_krw": 155646,
+          "after_tax_krw": 155378,
           "source": "yahoo"
         },
         {
           "date": "2025-10-23",
           "per_share": 0.93,
-          "after_tax_krw": 41835,
+          "after_tax_krw": 41764,
           "source": "yahoo"
         },
         {
           "date": "2025-10-30",
           "per_share": 1.35,
-          "after_tax_krw": 60729,
+          "after_tax_krw": 60624,
           "source": "yahoo"
         },
         {
           "date": "2025-11-06",
           "per_share": 0.89,
-          "after_tax_krw": 40036,
+          "after_tax_krw": 39967,
           "source": "yahoo"
         },
         {
           "date": "2025-11-13",
           "per_share": 0.83,
-          "after_tax_krw": 37337,
+          "after_tax_krw": 37273,
           "source": "yahoo"
         },
         {
           "date": "2025-11-20",
           "per_share": 0.64,
-          "after_tax_krw": 28790,
+          "after_tax_krw": 28740,
           "source": "yahoo"
         },
         {
           "date": "2025-11-28",
           "per_share": 0.66,
-          "after_tax_krw": 29690,
+          "after_tax_krw": 29639,
           "source": "yahoo"
         },
         {
           "date": "2025-12-04",
           "per_share": 1.131,
-          "after_tax_krw": 50877,
+          "after_tax_krw": 50790,
           "source": "yahoo"
         },
         {
           "date": "2025-12-11",
           "per_share": 0.39,
-          "after_tax_krw": 17544,
+          "after_tax_krw": 17514,
           "source": "yahoo"
         },
         {
           "date": "2025-12-18",
           "per_share": 0.51,
-          "after_tax_krw": 22942,
+          "after_tax_krw": 22903,
           "source": "yahoo"
         },
         {
           "date": "2025-12-26",
           "per_share": 0.494,
-          "after_tax_krw": 22222,
+          "after_tax_krw": 22184,
           "source": "yahoo"
         },
         {
           "date": "2026-01-02",
           "per_share": 0.434,
-          "after_tax_krw": 19523,
+          "after_tax_krw": 19490,
           "source": "yahoo"
         },
         {
           "date": "2026-01-08",
           "per_share": 0.409,
-          "after_tax_krw": 18399,
+          "after_tax_krw": 18367,
           "source": "yahoo"
         },
         {
           "date": "2026-01-15",
           "per_share": 0.397,
-          "after_tax_krw": 17859,
+          "after_tax_krw": 17828,
           "source": "yahoo"
         },
         {
           "date": "2026-01-22",
           "per_share": 0.222,
-          "after_tax_krw": 9987,
+          "after_tax_krw": 9969,
           "source": "yahoo"
         },
         {
           "date": "2026-01-29",
           "per_share": 0.309,
-          "after_tax_krw": 13900,
+          "after_tax_krw": 13876,
           "source": "yahoo"
         },
         {
           "date": "2026-02-05",
           "per_share": 0.284,
-          "after_tax_krw": 12776,
+          "after_tax_krw": 12754,
           "source": "yahoo"
         },
         {
           "date": "2026-02-12",
           "per_share": 0.256,
-          "after_tax_krw": 11516,
+          "after_tax_krw": 11496,
           "source": "yahoo"
         },
         {
           "date": "2026-02-19",
           "per_share": 0.299,
-          "after_tax_krw": 13450,
+          "after_tax_krw": 13427,
           "source": "yahoo"
         },
         {
           "date": "2026-02-26",
           "per_share": 0.318,
-          "after_tax_krw": 14305,
+          "after_tax_krw": 14280,
           "source": "yahoo"
         },
         {
           "date": "2026-03-05",
           "per_share": 0.312,
-          "after_tax_krw": 14035,
+          "after_tax_krw": 14011,
           "source": "yahoo"
         },
         {
           "date": "2026-03-12",
           "per_share": 0.594,
-          "after_tax_krw": 26721,
+          "after_tax_krw": 26675,
           "source": "yahoo"
         },
         {
           "date": "2026-03-19",
           "per_share": 0.614,
-          "after_tax_krw": 27620,
+          "after_tax_krw": 27573,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-03-26",
+          "per_share": 0.533,
+          "after_tax_krw": 23935,
+          "source": "yahoo"
+        },
+        {
+          "date": "2026-04-02",
+          "per_share": 0.376,
+          "after_tax_krw": 16885,
           "source": "yahoo"
         }
       ],
       "dividends_projected": [
         {
-          "date": "2026-04-18",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-05-02",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-05-18",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-06-01",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-06-17",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-07-01",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-07-17",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-07-31",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-08-16",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-08-30",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-09-15",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-09-29",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-10-15",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-10-29",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-11-14",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-11-28",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2026-12-14",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2026-12-28",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-01-13",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2027-01-27",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-02-12",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2027-02-26",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-03-14",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2027-03-28",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         },
         {
-          "date": "2027-04-13",
-          "per_share": 0.4595,
-          "after_tax_krw": 20670,
+          "date": "2027-04-27",
+          "per_share": 0.52925,
+          "after_tax_krw": 23767,
           "projected": true,
           "source": "yahoo_based"
         }
@@ -1487,7 +1510,7 @@
         {
           "date": "2024-06-25",
           "per_share": 0.149,
-          "after_tax_krw": 192,
+          "after_tax_krw": 191,
           "source": "yahoo"
         },
         {
@@ -1505,7 +1528,7 @@
         {
           "date": "2025-03-25",
           "per_share": 0.065,
-          "after_tax_krw": 84,
+          "after_tax_krw": 83,
           "source": "yahoo"
         },
         {
@@ -1578,247 +1601,242 @@
   },
   "monthly_summary": {
     "2023-06": {
-      "actual_krw": 148879,
+      "actual_krw": 148624,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-09": {
-      "actual_krw": 163110,
+      "actual_krw": 162829,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-12": {
-      "actual_krw": 1342576,
+      "actual_krw": 1340269,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-03": {
-      "actual_krw": 1618520,
+      "actual_krw": 1615738,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-06": {
-      "actual_krw": 1723467,
+      "actual_krw": 1720503,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-09": {
-      "actual_krw": 1334283,
+      "actual_krw": 1331989,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-12": {
-      "actual_krw": 1353685,
+      "actual_krw": 1351358,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-03": {
-      "actual_krw": 972546,
+      "actual_krw": 970874,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-06": {
-      "actual_krw": 702248,
+      "actual_krw": 701040,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-09": {
-      "actual_krw": 633796,
+      "actual_krw": 632706,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-12": {
-      "actual_krw": 597376,
+      "actual_krw": 596349,
       "projected_krw": 71,
       "confirmed_krw": 0
     },
     "2026-03": {
-      "actual_krw": 242878,
-      "projected_krw": 105921,
+      "actual_krw": 399522,
+      "projected_krw": 71,
       "confirmed_krw": 0
     },
     "2026-06": {
       "actual_krw": 0,
-      "projected_krw": 245431,
+      "projected_krw": 246629,
       "confirmed_krw": 0
     },
     "2026-09": {
       "actual_krw": 0,
-      "projected_krw": 245431,
+      "projected_krw": 246629,
       "confirmed_krw": 0
     },
     "2026-12": {
       "actual_krw": 0,
-      "projected_krw": 245431,
+      "projected_krw": 246629,
       "confirmed_krw": 0
     },
     "2027-03": {
       "actual_krw": 0,
-      "projected_krw": 245431,
-      "confirmed_krw": 0
-    },
-    "2023-04": {
-      "actual_krw": 75273,
-      "projected_krw": 0,
+      "projected_krw": 246629,
       "confirmed_krw": 0
     },
     "2023-05": {
-      "actual_krw": 80247,
+      "actual_krw": 80109,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-07": {
-      "actual_krw": 60848,
+      "actual_krw": 60744,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-08": {
-      "actual_krw": 60683,
+      "actual_krw": 60578,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-10": {
-      "actual_krw": 612999,
+      "actual_krw": 611946,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2023-11": {
-      "actual_krw": 554236,
+      "actual_krw": 553283,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-02": {
-      "actual_krw": 540285,
+      "actual_krw": 539357,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-04": {
-      "actual_krw": 2292909,
+      "actual_krw": 2288966,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-05": {
-      "actual_krw": 1968117,
+      "actual_krw": 1964732,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-07": {
-      "actual_krw": 1455192,
+      "actual_krw": 1452691,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-08": {
-      "actual_krw": 1054669,
+      "actual_krw": 1052856,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-10": {
-      "actual_krw": 1154029,
+      "actual_krw": 1152043,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-11": {
-      "actual_krw": 1558010,
+      "actual_krw": 1555330,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-02": {
-      "actual_krw": 911396,
+      "actual_krw": 909830,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-04": {
-      "actual_krw": 520379,
+      "actual_krw": 519484,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-05": {
-      "actual_krw": 1070720,
+      "actual_krw": 1068880,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-07": {
-      "actual_krw": 779445,
+      "actual_krw": 778105,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-08": {
-      "actual_krw": 498112,
+      "actual_krw": 497256,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-10": {
-      "actual_krw": 636648,
+      "actual_krw": 635555,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2025-11": {
-      "actual_krw": 395289,
+      "actual_krw": 394609,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2026-02": {
-      "actual_krw": 253015,
+      "actual_krw": 252579,
       "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2026-04": {
-      "actual_krw": 0,
-      "projected_krw": 138160,
+      "actual_krw": 134705,
+      "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2026-05": {
       "actual_krw": 0,
-      "projected_krw": 225371,
+      "projected_krw": 253705,
       "confirmed_krw": 0
     },
     "2026-07": {
       "actual_krw": 0,
-      "projected_krw": 138160,
+      "projected_krw": 162503,
       "confirmed_krw": 0
     },
     "2026-08": {
       "actual_krw": 0,
-      "projected_krw": 138160,
+      "projected_krw": 138736,
       "confirmed_krw": 0
     },
     "2026-10": {
       "actual_krw": 0,
-      "projected_krw": 138160,
+      "projected_krw": 138736,
       "confirmed_krw": 0
     },
     "2026-11": {
       "actual_krw": 0,
-      "projected_krw": 138160,
+      "projected_krw": 138736,
       "confirmed_krw": 0
     },
     "2027-01": {
       "actual_krw": 0,
-      "projected_krw": 138160,
+      "projected_krw": 138736,
       "confirmed_krw": 0
     },
     "2027-02": {
       "actual_krw": 0,
-      "projected_krw": 138160,
-      "confirmed_krw": 0
-    },
-    "2025-01": {
-      "actual_krw": 764812,
-      "projected_krw": 0,
-      "confirmed_krw": 0
-    },
-    "2026-01": {
-      "actual_krw": 215702,
-      "projected_krw": 0,
+      "projected_krw": 138736,
       "confirmed_krw": 0
     },
     "2027-04": {
       "actual_krw": 0,
-      "projected_krw": 50949,
+      "projected_krw": 138736,
+      "confirmed_krw": 0
+    },
+    "2025-01": {
+      "actual_krw": 763497,
+      "projected_krw": 0,
+      "confirmed_krw": 0
+    },
+    "2026-01": {
+      "actual_krw": 215330,
+      "projected_krw": 0,
       "confirmed_krw": 0
     },
     "2024-01": {
-      "actual_krw": 1211429,
+      "actual_krw": 1209346,
       "projected_krw": 0,
       "confirmed_krw": 0
     }
