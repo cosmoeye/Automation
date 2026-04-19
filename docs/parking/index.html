@@ -892,6 +892,9 @@ async function triggerSearch() {
 
   saveFormCache();
   document.getElementById('search-btn').disabled = true;
+  // 새 조회 시작 시 이전 결과 숨기기
+  document.getElementById('results-section').style.display = 'none';
+  try { localStorage.removeItem(CACHE_RESULTS); } catch {}
   showStatus('queued');
 
   try {
@@ -1070,6 +1073,10 @@ async function getRunStatus(token, runId) {
 // ── 결과 로드 ─────────────────────────────────────────────
 async function loadResults(token) {
   try {
+    // 현재 폼에 입력된 날짜 (결과 검증용)
+    const expectedCheckin  = document.getElementById('checkin-date').value;
+    const expectedCheckout = document.getElementById('checkout-date').value;
+
     // GitHub Pages URL로 직접 fetch (캐시 무력화)
     const url = RESULTS_URL + '?t=' + Date.now();
     let data = null;
@@ -1080,8 +1087,14 @@ async function loadResults(token) {
       if (r.ok) data = await r.json();
     } catch {}
 
+    // GitHub Pages 캐시로 인해 이전 결과가 올 수 있으므로 날짜 검증
+    if (data && data.inputs &&
+        (data.inputs.checkin_date !== expectedCheckin || data.inputs.checkout_date !== expectedCheckout)) {
+      data = null; // 날짜 불일치 → Contents API로 재시도
+    }
+
     if (!data) {
-      // Contents API fallback
+      // Contents API fallback (GitHub Pages 캐시 우회)
       const r2 = await fetch(
         `https://api.github.com/repos/${REPO}/contents/docs/results/latest.json`,
         { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
