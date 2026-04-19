@@ -547,6 +547,9 @@
       <span class="prog-eta" id="prog-eta"></span>
       <span class="prog-elapsed" id="prog-elapsed"></span>
     </div>
+    <button class="btn" id="cancel-btn" onclick="cancelSearch()" style="display:none;margin-top:12px;background:#ef4444;color:#fff;width:100%">
+      조회 취소
+    </button>
   </div>
 
   <!-- Results -->
@@ -891,6 +894,8 @@ async function triggerSearch() {
   if (!checkinDate || !checkoutDate) return alert('입차/출차 날짜를 입력하세요.');
 
   saveFormCache();
+  _cancelled = false;
+  _currentRunId = null;
   document.getElementById('search-btn').disabled = true;
   // 새 조회 시작 시 이전 결과 숨기기
   document.getElementById('results-section').style.display = 'none';
@@ -931,6 +936,30 @@ async function triggerSearch() {
     showStatus('error', e.message);
     document.getElementById('search-btn').disabled = false;
   }
+}
+
+// ── 취소 상태 ────────────────────────────────────────────
+let _cancelled = false;
+let _currentRunId = null;
+
+async function cancelSearch() {
+  _cancelled = true;
+  const token = document.getElementById('gh-token').value.trim();
+
+  // GitHub Actions 워크플로우 취소
+  if (_currentRunId && token) {
+    try {
+      await fetch(
+        `https://api.github.com/repos/${REPO}/actions/runs/${_currentRunId}/cancel`,
+        { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+      );
+    } catch {}
+  }
+
+  stopProgressTracking();
+  showStatus('cancelled');
+  document.getElementById('search-btn').disabled = false;
+  document.getElementById('cancel-btn').style.display = 'none';
 }
 
 // ── 진행률 헬퍼 ───────────────────────────────────────────
@@ -994,10 +1023,13 @@ async function pollWorkflow(token) {
 
   // run ID 획득 (최대 15초 대기)
   for (let i = 0; i < 10; i++) {
+    if (_cancelled) return;
     await sleep(2000);
     runId = await getLatestRunId(token, triggerTime);
     if (runId) break;
   }
+
+  if (_cancelled) return;
 
   if (!runId) {
     showStatus('error', 'Run ID를 찾을 수 없습니다. 잠시 후 다시 시도하세요.');
@@ -1005,11 +1037,14 @@ async function pollWorkflow(token) {
     return;
   }
 
+  _currentRunId = runId;
   showStatus('in_progress', `Run #${runId}`);
 
   // 완료까지 폴링
   while (true) {
+    if (_cancelled) return;
     await sleep(5000);
+    if (_cancelled) return;
     const [run, steps] = await Promise.all([
       getRunStatus(token, runId),
       getJobSteps(token, runId),
@@ -1224,6 +1259,7 @@ const STATUS_MAP = {
   in_progress: { icon: '⚙️', text: '주차 조회 실행 중', sub: '' },
   success:     { icon: '✅', text: '조회 완료!', sub: '결과를 불러오는 중...' },
   error:       { icon: '❌', text: '오류 발생', sub: '' },
+  cancelled:   { icon: '🚫', text: '조회 취소됨', sub: '' },
 };
 
 function showStatus(state, detail) {
@@ -1246,7 +1282,11 @@ function showStatus(state, detail) {
   const bar = document.getElementById('progress-bar');
   bar.className = 'progress-bar';
   if (state === 'success') bar.classList.add('done');
-  else if (state === 'error') bar.classList.add('failed');
+  else if (state === 'error' || state === 'cancelled') bar.classList.add('failed');
+
+  // 취소 버튼 표시/숨김
+  const cancelBtn = document.getElementById('cancel-btn');
+  cancelBtn.style.display = ['queued', 'triggered', 'in_progress'].includes(state) ? 'block' : 'none';
 
   // 새 조회 시작 시 진행률 초기화
   if (state === 'queued') {
