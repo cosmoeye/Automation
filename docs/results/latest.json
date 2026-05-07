@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-04-19T16:11:42.270Z",
+  "timestamp": "2026-05-07T14:42:34.328Z",
   "inputs": {
-    "terminal": "1",
-    "terminalName": "제1터미널 예약주차장",
+    "terminal": "2",
+    "terminalName": "제2터미널 예약주차장",
     "checkin_date": "2026-05-08",
     "checkout_date": "2026-05-10",
     "checkin_time": "04:00~05:30",
@@ -10,68 +10,7 @@
   },
   "stats": {
     "total_checked": 10,
-    "available_count": 10
+    "available_count": 0
   },
-  "available_slots": [
-    {
-      "startDateTime": "2026-05-08 04:00",
-      "endDateTime": "2026-05-10 22:00",
-      "parkingFee": "",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 04:00",
-      "endDateTime": "2026-05-10 22:30",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 04:00",
-      "endDateTime": "2026-05-10 23:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 04:30",
-      "endDateTime": "2026-05-10 22:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 04:30",
-      "endDateTime": "2026-05-10 22:30",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 04:30",
-      "endDateTime": "2026-05-10 23:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 05:00",
-      "endDateTime": "2026-05-10 22:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 05:00",
-      "endDateTime": "2026-05-10 22:30",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 05:00",
-      "endDateTime": "2026-05-10 23:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    },
-    {
-      "startDateTime": "2026-05-08 05:30",
-      "endDateTime": "2026-05-10 22:00",
-      "parkingFee": "27,000",
-      "status": " 예약 가능"
-    }
-  ]
+  "available_slots": []
 }
